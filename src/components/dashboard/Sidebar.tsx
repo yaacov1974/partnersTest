@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Users, MessageSquare, Settings, Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   type: "saas" | "affiliate";
@@ -12,7 +13,13 @@ interface SidebarProps {
 
 export function Sidebar({ type }: SidebarProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/");
+  };
   
   const links = [
     {
@@ -68,7 +75,7 @@ export function Sidebar({ type }: SidebarProps) {
           );
         })}
       </nav>
-      <div className="border-t border-white/10 p-4">
+      <div className="border-t border-white/10 p-4 space-y-3">
         <div className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
           <div className="h-10 w-10 rounded-full bg-zinc-800 flex items-center justify-center">
             <span className="text-white font-medium">
@@ -82,6 +89,19 @@ export function Sidebar({ type }: SidebarProps) {
             <span className="text-xs text-zinc-500 capitalize">{type} Account</span>
           </div>
         </div>
+        <Button 
+          variant="outline" 
+          className="w-full border-white/10 bg-transparent text-white hover:bg-white/5"
+          onClick={async () => {
+            const { signOut } = await import("@/context/AuthContext");
+            // We need to use the context, so let's import useRouter
+            const { useRouter } = await import("next/navigation");
+            await signOut();
+            window.location.href = "/";
+          }}
+        >
+          Logout
+        </Button>
       </div>
     </div>
   );

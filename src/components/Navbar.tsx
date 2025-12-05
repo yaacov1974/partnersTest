@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
 
 export function Navbar() {
   const { user, session, loading, signOut } = useAuth();
@@ -53,7 +52,6 @@ export function Navbar() {
                 className="border-white/10 bg-transparent text-white hover:bg-white/5"
                 onClick={handleLogout}
               >
-                <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
             </>

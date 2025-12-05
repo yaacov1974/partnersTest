@@ -7,7 +7,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  webpack: (config) => {
+    return config;
+  },
 };
 
 export default withPWA(nextConfig);
