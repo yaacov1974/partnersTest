@@ -18,6 +18,7 @@ interface AuthFormProps {
 export function AuthForm({ type, mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -47,6 +48,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           options: {
             data: {
               role: type,
+              marketing_consent: marketingConsent,
             },
           },
         });
@@ -94,7 +96,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
   const isMockMode = supabaseUrl.includes("placeholder");
 
   return (
-    <div className="relative group w-full max-w-lg">
+    <div className="relative group w-full max-w-2xl">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
       <Card className="relative w-full border-zinc-800 bg-black/90 backdrop-blur-xl">
         {isMockMode && (
@@ -104,6 +106,14 @@ export function AuthForm({ type, mode }: AuthFormProps) {
             </span>
           </div>
         )}
+        <div className="flex justify-center pt-8 pb-4">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-bold text-xl">P</span>
+            </div>
+            <span className="text-2xl font-bold text-white">Partnerz.ai</span>
+          </Link>
+        </div>
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight text-white">{title}</CardTitle>
           <CardDescription className="text-zinc-400">{description}</CardDescription>
@@ -148,6 +158,21 @@ export function AuthForm({ type, mode }: AuthFormProps) {
               </div>
             )}
 
+            {mode === "signup" && (
+              <div className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="marketing"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-zinc-800 bg-zinc-900/50 text-primary focus:ring-primary focus:ring-offset-0"
+                />
+                <label htmlFor="marketing" className="text-sm text-zinc-400">
+                  Yes, I would like to receive exclusive deals, product updates, and personalized content from Partnerz.ai via email and in-app messages. You can unsubscribe at any time.
+                </label>
+              </div>
+            )}
+
             <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-indigo-500/20 transition-all" disabled={loading}>
               {loading ? (
                 <>
@@ -158,6 +183,20 @@ export function AuthForm({ type, mode }: AuthFormProps) {
                 mode === "login" ? "Sign In" : "Create Account"
               )}
             </Button>
+
+            {mode === "signup" && (
+              <p className="text-xs text-center text-zinc-500 px-4">
+                By creating an account, you agree to our{" "}
+                <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 hover:underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 hover:underline">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            )}
           </form>
           
           <div className="relative my-6">
@@ -199,7 +238,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
             </Link>
           </p>
           {mode === "login" && (
-            <Link href="#" className="text-xs text-zinc-500 hover:text-zinc-400">
+            <Link href={`/${type}/forgot-password`} className="text-xs text-zinc-500 hover:text-zinc-400">
               Forgot your password?
             </Link>
           )}

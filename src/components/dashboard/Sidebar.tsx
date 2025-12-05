@@ -18,7 +18,7 @@ export function Sidebar({ type }: SidebarProps) {
 
   const handleLogout = async () => {
     await signOut();
-    router.push("/");
+    window.location.href = "/";
   };
   
   const links = [

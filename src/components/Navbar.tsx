@@ -11,7 +11,7 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await signOut();
-    router.push("/");
+    window.location.href = "/";
   };
 
   // Get user role from session metadata
@@ -19,7 +19,7 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/50 backdrop-blur-xl supports-[backdrop-filter]:bg-black/20">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-auto min-h-16 items-center justify-between px-4 py-3 md:py-0 md:h-16">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -41,15 +41,15 @@ export function Navbar() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
           {!loading && user ? (
             <>
-              <Button asChild className="bg-primary hover:bg-primary/90">
+              <Button asChild className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
                 <Link href={`/${userRole}/dashboard`}>Dashboard</Link>
               </Button>
               <Button 
                 variant="outline" 
-                className="border-white/10 bg-transparent text-white hover:bg-white/5"
+                className="border-white/10 bg-transparent text-white hover:bg-white/5 text-xs sm:text-sm"
                 onClick={handleLogout}
               >
                 Logout
@@ -57,10 +57,10 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/affiliate/login" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">
+              <Link href="/affiliate/login" className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white whitespace-nowrap">
                 Affiliate Sign In
               </Link>
-              <Button asChild className="bg-white/10 text-white hover:bg-white/20 border border-white/10">
+              <Button asChild className="bg-white/10 text-white hover:bg-white/20 border border-white/10 text-xs sm:text-sm whitespace-nowrap">
                 <Link href="/saas/login">SaaS Sign In</Link>
               </Button>
             </>
