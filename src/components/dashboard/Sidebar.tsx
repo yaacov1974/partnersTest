@@ -92,13 +92,7 @@ export function Sidebar({ type }: SidebarProps) {
         <Button 
           variant="outline" 
           className="w-full border-white/10 bg-transparent text-white hover:bg-white/5"
-          onClick={async () => {
-            const { signOut } = await import("@/context/AuthContext");
-            // We need to use the context, so let's import useRouter
-            const { useRouter } = await import("next/navigation");
-            await signOut();
-            window.location.href = "/";
-          }}
+          onClick={handleLogout}
         >
           Logout
         </Button>
