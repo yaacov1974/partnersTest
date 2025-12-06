@@ -57,10 +57,10 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/affiliate/login" className="text-xs sm:text-sm font-medium text-zinc-400 transition-colors hover:text-white whitespace-nowrap">
-                Affiliate Sign In
-              </Link>
-              <Button asChild className="bg-white/10 text-white hover:bg-white/20 border border-white/10 text-xs sm:text-sm whitespace-nowrap">
+              <Button asChild variant="outline" className="border-primary/50 bg-transparent text-white hover:bg-primary/10 hover:border-primary text-xs sm:text-sm whitespace-nowrap">
+                <Link href="/affiliate/login">Affiliate Sign In</Link>
+              </Button>
+              <Button asChild variant="outline" className="border-primary/50 bg-transparent text-white hover:bg-primary/10 hover:border-primary text-xs sm:text-sm whitespace-nowrap">
                 <Link href="/saas/login">SaaS Sign In</Link>
               </Button>
             </>
