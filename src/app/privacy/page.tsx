@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { SimpleHeader } from "@/components/SimpleHeader";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - Partnerz.ai",
@@ -8,6 +10,7 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-black text-zinc-300">
+      <SimpleHeader />
       <div className="container mx-auto max-w-4xl px-4 py-16">
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl mb-4">
@@ -264,6 +267,7 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
