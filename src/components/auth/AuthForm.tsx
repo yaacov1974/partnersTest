@@ -20,6 +20,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showEmailSent, setShowEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -46,6 +47,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           email,
           password,
           options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/${type}/dashboard`,
             data: {
               role: type,
               marketing_consent: marketingConsent,
@@ -53,6 +55,13 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           },
         });
         if (authError) throw authError;
+
+        if (authData.user && !authData.session) {
+           // User signed up but needs email verification
+           setShowEmailSent(true);
+           setLoading(false);
+           return;
+        }
 
         if (authData.user) {
           // Profile creation is now handled by a Database Trigger (see supabase/fix_signup_trigger.sql)
@@ -84,7 +93,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/${type}/dashboard`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/${type}/dashboard`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -104,6 +113,38 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const isMockMode = supabaseUrl.includes("placeholder");
+
+  if (showEmailSent) {
+    return (
+      <div className="relative group w-full max-w-2xl">
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-75" />
+        <Card className="relative w-full border-zinc-800 bg-black/90 backdrop-blur-xl p-8 text-center space-y-6">
+            <div className="flex justify-center">
+                <div className="h-16 w-16 rounded-full bg-indigo-500/10 flex items-center justify-center">
+                    <Mail className="h-8 w-8 text-indigo-500" />
+                </div>
+            </div>
+            <div className="space-y-2">
+                <h3 className="text-2xl font-bold text-white">Check your email</h3>
+                <p className="text-zinc-400">
+                    We've sent a confirmation link to <span className="font-semibold text-white">{email}</span>.
+                    <br />
+                    Please check your inbox (and spam folder) to verify your account.
+                </p>
+            </div>
+            <div className="pt-4">
+                <Button 
+                    variant="outline" 
+                    className="border-zinc-800 bg-zinc-900/50 text-white hover:bg-zinc-800"
+                    onClick={() => router.push(`/${type}/login`)}
+                >
+                    Back to Sign In
+                </Button>
+            </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="relative group w-full max-w-2xl">
