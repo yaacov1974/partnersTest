@@ -4,6 +4,7 @@ create table public.profiles (
   role text check (role in ('saas', 'affiliate')) not null,
   full_name text,
   avatar_url text,
+  marketing_consent boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
