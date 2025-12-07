@@ -15,12 +15,9 @@ interface AuthFormProps {
   mode: "login" | "signup";
 }
 
-import { User } from "lucide-react";
-
 export function AuthForm({ type, mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +48,6 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           options: {
             data: {
               role: type,
-              full_name: fullName,
               marketing_consent: marketingConsent,
             },
           },
@@ -64,8 +60,8 @@ export function AuthForm({ type, mode }: AuthFormProps) {
             .from('profiles')
             .insert({
               id: authData.user.id,
+              email: email,
               role: type,
-              full_name: fullName,
               marketing_consent: marketingConsent,
             });
 
@@ -93,7 +89,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
               .from('saas_companies')
               .insert({
                 owner_id: authData.user.id,
-                name: `${fullName}'s Company`, // Default name
+                name: `Company`, // Default name
               });
              if (saasError) {
                 console.error("Error creating saas company entry:", saasError);
@@ -168,21 +164,6 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-5 w-5 text-zinc-500" />
-                  <Input
-                    type="text"
-                    placeholder="Full Name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    className="pl-10 bg-zinc-900/50 border-zinc-800 text-white placeholder:text-zinc-500 focus:border-primary focus:ring-primary"
-                  />
-                </div>
-              </div>
-            )}
             <div className="space-y-2">
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 h-5 w-5 text-zinc-500" />
