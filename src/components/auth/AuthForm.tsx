@@ -68,6 +68,8 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           if (profileError) {
             console.error("Error creating profile:", profileError);
             // Don't throw here to allow the user to proceed, but log it
+          } else {
+            console.log("Profile created successfully with marketing consent:", marketingConsent);
           }
 
           // If affiliate, create partner entry
