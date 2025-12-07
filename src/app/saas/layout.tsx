@@ -9,7 +9,7 @@ export default function SaaSLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/forgot-password") || pathname?.includes("/reset-password");
+  const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/forgot-password") || pathname?.includes("/reset-password") || pathname?.includes("/onboarding");
 
   if (isAuthPage) {
     return <>{children}</>;
