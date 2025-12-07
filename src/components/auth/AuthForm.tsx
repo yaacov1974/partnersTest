@@ -47,7 +47,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/${type}/dashboard`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/${type}/onboarding`,
             data: {
               role: type,
               marketing_consent: marketingConsent,
@@ -72,7 +72,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           }
         }
 
-        router.push(`/${type}/dashboard`);
+        router.push(`/${type}/onboarding`);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
