@@ -55,47 +55,11 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         if (authError) throw authError;
 
         if (authData.user) {
-          // Create profile entry
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              id: authData.user.id,
-              email: email,
-              role: type,
-              marketing_consent: marketingConsent,
-            });
-
-          if (profileError) {
-            console.error("Error creating profile:", profileError);
-            // Don't throw here to allow the user to proceed, but log it
-          } else {
-            console.log("Profile created successfully with marketing consent:", marketingConsent);
-          }
-
-          // If affiliate, create partner entry
-          if (type === 'affiliate') {
-            const { error: partnerError } = await supabase
-              .from('partners')
-              .insert({
-                profile_id: authData.user.id,
-              });
-            
-            if (partnerError) {
-              console.error("Error creating partner entry:", partnerError);
-            }
-          }
+          // Profile creation is now handled by a Database Trigger (see supabase/fix_signup_trigger.sql)
+          // This avoids race conditions and RLS issues with pure client-side insertion.
           
-          // If saas, create saas_company entry (placeholder for now)
-          if (type === 'saas') {
-             const { error: saasError } = await supabase
-              .from('saas_companies')
-              .insert({
-                owner_id: authData.user.id,
-                name: `Company`, // Default name
-              });
-             if (saasError) {
-                console.error("Error creating saas company entry:", saasError);
-             }
+          if (isMockMode) {
+             console.log("Mock Mode: Trigger would fire here.");
           }
         }
 
