@@ -43,6 +43,20 @@ export function AuthForm({ type, mode }: AuthFormProps) {
       }
 
       if (mode === "signup") {
+        // Check if user already exists
+        // Note: This relies on public.profiles being readable (which it is by default in our schema)
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('email', email)
+          .single();
+
+        if (existingUser) {
+          setError("User already registered. Please sign in instead.");
+          setLoading(false);
+          return;
+        }
+
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
