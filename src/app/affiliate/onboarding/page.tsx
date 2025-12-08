@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
+import { OnboardingHeader } from "@/components/OnboardingHeader";
+import { Footer } from "@/components/Footer";
+
 export default function AffiliateOnboardingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -86,7 +89,9 @@ export default function AffiliateOnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black p-4 py-8">
+    <div className="min-h-screen flex flex-col bg-black">
+      <OnboardingHeader />
+      <main className="flex-1 flex items-center justify-center p-4 py-8">
       <Card className="w-full max-w-3xl border-zinc-800 bg-zinc-900/50">
         <CardHeader>
           <CardTitle className="text-2xl text-white">Build Your Partner Profile</CardTitle>
@@ -209,6 +214,8 @@ export default function AffiliateOnboardingPage() {
           </form>
         </CardContent>
       </Card>
+      </main>
+      <Footer />
     </div>
   );
 }
