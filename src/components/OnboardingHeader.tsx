@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
 
 export function OnboardingHeader() {
   const router = useRouter();
@@ -30,7 +29,6 @@ export function OnboardingHeader() {
           onClick={handleLogout}
           className="text-zinc-400 hover:text-white hover:bg-zinc-800"
         >
-          <LogOut className="mr-2 h-4 w-4" />
           Sign Out
         </Button>
       </div>
