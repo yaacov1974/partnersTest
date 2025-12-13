@@ -29,6 +29,20 @@ create table public.saas_companies (
   website text,
   logo_url text,
   commission_rate numeric,
+  short_description text,
+  long_description text,
+  category text,
+  year_founded integer,
+  commission_model text,
+  cookie_duration integer,
+  landing_page_url text,
+  tracking_method text,
+  partner_program_url text,
+  exclusive_deal text,
+  technical_contact text,
+  geo_restrictions text,
+  supported_languages text[],
+  onboarding_completed boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -49,6 +63,18 @@ create table public.partners (
   profile_id uuid references public.profiles(id) on delete cascade not null,
   bio text,
   skills text[],
+  full_name text,
+  phone text,
+  country text,
+  promotion_platform text,
+  platform_url text,
+  audience_size text,
+  niche text,
+  payment_method text,
+  payment_details text,
+  tax_info text,
+  preferred_currency text,
+  onboarding_completed boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

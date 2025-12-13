@@ -10,7 +10,8 @@ add column if not exists niche text,
 add column if not exists payment_method text,
 add column if not exists payment_details text,
 add column if not exists tax_info text,
-add column if not exists preferred_currency text;
+add column if not exists preferred_currency text,
+add column if not exists onboarding_completed boolean default false;
 
 -- Update saas_companies table with detailed fields
 alter table public.saas_companies
@@ -26,4 +27,5 @@ add column if not exists partner_program_url text,
 add column if not exists exclusive_deal text,
 add column if not exists technical_contact text,
 add column if not exists geo_restrictions text,
-add column if not exists supported_languages text[];
+add column if not exists supported_languages text[],
+add column if not exists onboarding_completed boolean default false;
