@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   type: "saas" | "affiliate";
+  className?: string; // Add className prop
+  onClose?: () => void; // Add onClose prop for mobile
 }
 
-export function Sidebar({ type }: SidebarProps) {
+export function Sidebar({ type, className, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
@@ -45,7 +47,7 @@ export function Sidebar({ type }: SidebarProps) {
   ];
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r border-white/10 bg-black">
+    <div className={cn("flex h-screen w-64 flex-col border-r border-white/10 bg-black", className)}>
       <div className="flex h-16 items-center px-6">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -68,6 +70,7 @@ export function Sidebar({ type }: SidebarProps) {
                   ? "bg-primary/10 text-primary"
                   : "text-zinc-400 hover:bg-white/5 hover:text-white"
               )}
+              onClick={onClose}
             >
               <Icon className="h-5 w-5" />
               {link.label}

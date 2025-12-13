@@ -85,7 +85,7 @@ export default function AffiliateDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-white">Dashboard</h2>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Dashboard</h2>
         <p className="text-zinc-400">Welcome back, {user.email}! Track your performance and earnings.</p>
       </div>
 
