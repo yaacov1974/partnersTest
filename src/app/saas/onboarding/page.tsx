@@ -266,7 +266,7 @@ export default function SaaSOnboardingPage() {
            </div>
         </div>
 
-        <Card className="w-full max-w-2xl border-none bg-transparent shadow-none">
+        <Card className="w-full max-w-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-10 scale-90 origin-center">
           <CardContent className="p-0">
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               
@@ -354,7 +354,12 @@ export default function SaaSOnboardingPage() {
                 <Button
                   onClick={handleNext}
                   disabled={isSubmitting || (step.required && !formData[step.field])}
-                  className="bg-white text-black hover:bg-zinc-200 text-lg h-14 px-8 rounded-full font-semibold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all hover:scale-105"
+                  className={cn(
+                    "text-lg h-14 px-8 rounded-full font-semibold transition-all hover:scale-105",
+                    !step.required && !formData[step.field] && currentStep !== STEPS.length - 1
+                      ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700"
+                      : "bg-white text-black hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  )}
                 >
                   {currentStep === STEPS.length - 1 ? (
                     isSubmitting ? (
@@ -366,7 +371,7 @@ export default function SaaSOnboardingPage() {
                     )
                   ) : (
                     <>
-                      Next <ArrowRight className="ml-2 h-5 w-5" />
+                      {!step.required && !formData[step.field] ? "Skip" : "Next"} <ArrowRight className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>

@@ -1,37 +1,131 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { OnboardingHeader } from "@/components/OnboardingHeader";
 import { Footer } from "@/components/Footer";
 
+// Field Types
+type FieldType = "text" | "url" | "number" | "email" | "textarea" | "chips" | "multi-chips";
+
+interface Step {
+  field: keyof typeof initialFormData;
+  type: FieldType;
+  title: string;
+  description?: string;
+  placeholder?: string;
+  options?: string[];
+  required?: boolean;
+}
+
+const initialFormData = {
+  // Account & Identity
+  full_name: "",
+  phone: "",
+  country: "",
+  // Promotion Channel
+  promotion_platform: "Social Media",
+  platform_url: "",
+  audience_size: "",
+  niche: "",
+  // Payment Details
+  payment_method: "PayPal",
+  payment_details: "",
+  tax_info: "",
+  preferred_currency: "USD",
+};
+
+const STEPS: Step[] = [
+  {
+    field: "full_name",
+    type: "text",
+    title: "What is your full name?",
+    description: "Or company name if you are an agency.",
+    placeholder: "e.g. John Doe",
+    required: true,
+  },
+  {
+    field: "phone",
+    type: "text",
+    title: "What is your phone number?",
+    placeholder: "+1 234 567 890",
+  },
+  {
+    field: "country",
+    type: "text",
+    title: "Where are you based?",
+    placeholder: "e.g. USA, UK, Israel",
+    required: true,
+  },
+  {
+    field: "promotion_platform",
+    type: "chips",
+    title: "How do you promote products?",
+    options: ["Social Media", "Blog", "YouTube", "Email List", "Podcast", "Ads", "Other"],
+  },
+  {
+    field: "platform_url",
+    type: "url",
+    title: "Link to your main channel",
+    description: "Where can we see your content?",
+    placeholder: "https://instagram.com/johndoe",
+  },
+  {
+    field: "audience_size",
+    type: "text",
+    title: "How big is your audience?",
+    description: "Approximate monthly traffic or followers.",
+    placeholder: "e.g. 50k followers",
+  },
+  {
+    field: "niche",
+    type: "text",
+    title: "What is your primary niche?",
+    placeholder: "e.g. Tech, Finance, Lifestyle",
+  },
+  {
+    field: "payment_method",
+    type: "chips",
+    title: "Preferred payment method",
+    options: ["PayPal", "Bank Transfer", "Payoneer"],
+  },
+  {
+    field: "preferred_currency",
+    type: "chips",
+    title: "Preferred currency",
+    options: ["USD", "EUR", "ILS"],
+  },
+  {
+    field: "payment_details",
+    type: "text",
+    title: "Payment Details",
+    description: "PayPal email or Bank Account IBAN/SWIFT",
+    placeholder: "john@example.com",
+    required: true,
+  },
+  {
+    field: "tax_info",
+    type: "text",
+    title: "Tax ID / VAT Number",
+    description: "If applicable for invoicing.",
+    placeholder: "VAT #123456789",
+  },
+];
+
 export default function AffiliateOnboardingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    // Account & Identity
-    full_name: "",
-    phone: "",
-    country: "",
-    // Promotion Channel
-    promotion_platform: "Social Media", // Default
-    platform_url: "",
-    audience_size: "",
-    niche: "",
-    // Payment Details
-    payment_method: "PayPal", // Default
-    payment_details: "",
-    tax_info: "",
-    preferred_currency: "USD",
-  });
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -39,10 +133,39 @@ export default function AffiliateOnboardingPage() {
     }
   }, [user, loading, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleNext = () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep((prev) => prev + 1);
+    } else {
+      handleSubmit();
+    }
+  };
 
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleNext();
+    }
+  };
+
+  const handleChange = (value: string) => {
+    const fieldName = STEPS[currentStep].field;
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
+  };
+
+  const mapFieldValue = (field: keyof typeof initialFormData, value: string) => {
+      // Helper to handle specific conversions if needed, currently strings match
+      return value;
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
       if (!user) return;
 
@@ -60,24 +183,17 @@ export default function AffiliateOnboardingPage() {
           payment_details: formData.payment_details,
           tax_info: formData.tax_info,
           preferred_currency: formData.preferred_currency,
-          // Mapping existing fields if needed, or keeping them strictly separate
-           bio: `Niche: ${formData.niche}. Platform: ${formData.promotion_platform}`, // quick backwards compat fill
+          bio: `Niche: ${formData.niche}. Platform: ${formData.promotion_platform}`, 
         })
         .eq("profile_id", user.id);
 
       if (error) throw error;
-
       router.push("/affiliate/dashboard");
     } catch (error) {
       console.error("Error updating profile:", error);
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   if (loading || !user) {
@@ -88,134 +204,124 @@ export default function AffiliateOnboardingPage() {
     );
   }
 
+  const step = STEPS[currentStep];
+  const progress = ((currentStep + 1) / STEPS.length) * 100;
+
   return (
-    <div className="min-h-screen flex flex-col bg-black">
+    <div className="min-h-screen flex flex-col bg-black text-white font-sans">
       <OnboardingHeader />
-      <main className="flex-1 flex items-center justify-center p-4 py-8">
-      <Card className="w-full max-w-3xl border-zinc-800 bg-zinc-900/50">
-        <CardHeader>
-          <CardTitle className="text-2xl text-white">Build Your Partner Profile</CardTitle>
-          <CardDescription className="text-zinc-400">
-            Showcase your channels and set up your payment details.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            
-            {/* Account & Identity */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Account & Identity</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Full Name / Company Name</label>
-                    <Input required name="full_name" value={formData.full_name} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="John Doe" />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Phone Number</label>
-                    <Input name="phone" value={formData.phone} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="+1 234 567 890" />
-                </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Country of Residence</label>
-                    <Input required name="country" value={formData.country} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="USA, Israel, UK..." />
-                </div>
-              </div>
-            </div>
+      
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 max-w-4xl mx-auto w-full">
+        {/* Progress Bar */}
+        <div className="w-full max-w-xl mb-12">
+           <div className="flex justify-between text-xs text-zinc-500 mb-2 uppercase tracking-widest font-medium">
+              <span>Question {currentStep + 1} of {STEPS.length}</span>
+              <span>{Math.round(progress)}% Completed</span>
+           </div>
+           <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-purple-600 transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+           </div>
+        </div>
 
-             {/* Promotion Channel Details */}
-             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Promotion Channel Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Main Platform</label>
-                     <select 
-                        name="promotion_platform" 
-                        value={formData.promotion_platform} 
-                        onChange={handleChange}
-                        className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300"
-                     >
-                        <option value="Blog">Blog</option>
-                        <option value="YouTube">YouTube</option>
-                        <option value="Social Media">Social Media</option>
-                        <option value="Email List">Email List</option>
-                        <option value="Podcast">Podcast</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Platform URL</label>
-                    <Input name="platform_url" value={formData.platform_url} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="https://..." />
-                </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Audience Size (Monthly Traffic/Followers)</label>
-                    <Input name="audience_size" value={formData.audience_size} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="e.g. 10k - 50k" />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Niche / Topic</label>
-                    <Input name="niche" value={formData.niche} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="e.g. FinTech, Wellness" />
-                </div>
+        <Card className="w-full max-w-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-10 scale-90 origin-center">
+          <CardContent className="p-0">
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              <div className="space-y-2 text-center md:text-left">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
+                  {step.title}
+                </h2>
+                {step.description && (
+                  <p className="text-zinc-400 text-lg">
+                    {step.description}
+                  </p>
+                )}
               </div>
-            </div>
 
-            {/* Payment Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Payment Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Preferred Payment Method</label>
-                     <select 
-                        name="payment_method" 
-                        value={formData.payment_method} 
-                        onChange={handleChange}
-                        className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300"
-                     >
-                        <option value="PayPal">PayPal</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="Payoneer">Payoneer</option>
-                    </select>
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Preferred Currency</label>
-                     <select 
-                        name="preferred_currency" 
-                        value={formData.preferred_currency} 
-                        onChange={handleChange}
-                        className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300"
-                     >
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="ILS">ILS (₪)</option>
-                    </select>
-                </div>
-                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Payment Account Details</label>
-                    <Input required name="payment_details" value={formData.payment_details} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="PayPal Email or IBAN/SWIFT" />
-                </div>
-                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Tax Info (ID / VAT Number)</label>
-                    <Input name="tax_info" value={formData.tax_info} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="e.g. VAT #123456789" />
-                </div>
+              <div className="min-h-[120px] flex flex-col justify-center">
+                {step.type === "textarea" ? (
+                   <textarea
+                    autoFocus
+                    value={formData[step.field]}
+                    onChange={(e) => handleChange(e.target.value)}
+                    className="w-full bg-transparent border-b-2 border-zinc-700 text-2xl md:text-3xl py-4 text-white placeholder:text-zinc-700 focus:outline-none focus:border-purple-500 transition-colors resize-none h-32"
+                    placeholder={step.placeholder}
+                  />
+                ) : step.type === "chips" ? (
+                  <div className="flex flex-wrap gap-3">
+                    {step.options?.map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => handleChange(option)}
+                        className={cn(
+                          "px-6 py-3 rounded-full text-lg border transition-all duration-200",
+                          formData[step.field] === option
+                            ? "bg-purple-600 border-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)]"
+                            : "bg-zinc-900/50 border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-800"
+                        )}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <input
+                    autoFocus
+                    type={step.type}
+                    value={formData[step.field]}
+                    onChange={(e) => handleChange(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full bg-transparent border-b-2 border-zinc-700 text-3xl md:text-5xl py-4 text-white placeholder:text-zinc-700 focus:outline-none focus:border-purple-500 transition-colors"
+                    placeholder={step.placeholder}
+                  />
+                )}
               </div>
-            </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white mt-6"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving Profile...
-                </>
-              ) : (
-                "Complete Profile"
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <div className="flex items-center justify-between pt-8">
+                <Button
+                  variant="ghost"
+                  onClick={handleBack}
+                  disabled={currentStep === 0}
+                  className="text-zinc-400 hover:text-white hover:bg-zinc-900 text-lg h-12 px-6"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" /> Back
+                </Button>
+
+                <Button
+                  onClick={handleNext}
+                  disabled={isSubmitting || (step.required && !formData[step.field])}
+                   className={cn(
+                    "text-lg h-14 px-8 rounded-full font-semibold transition-all hover:scale-105",
+                    !step.required && !formData[step.field] && currentStep !== STEPS.length - 1
+                      ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700"
+                      : "bg-white text-black hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  )}
+                >
+                  {currentStep === STEPS.length - 1 ? (
+                    isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Saving...
+                      </>
+                    ) : (
+                      "Complete Profile"
+                    )
+                  ) : (
+                    <>
+                      {!step.required && !formData[step.field] ? "Skip" : "Next"} <ArrowRight className="ml-2 h-5 w-5" />
+                    </>
+                  )}
+                </Button>
+              </div>
+
+            </div>
+          </CardContent>
+        </Card>
       </main>
       <Footer />
     </div>
   );
 }
+
