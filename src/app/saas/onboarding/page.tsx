@@ -224,6 +224,7 @@ export default function SaaSOnboardingPage() {
           technical_contact: formData.technical_contact,
           geo_restrictions: formData.geo_restrictions,
           supported_languages: languagesArray,
+          onboarding_completed: true,
         })
         .eq("owner_id", user.id);
 

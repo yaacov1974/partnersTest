@@ -4,19 +4,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, DollarSign, TrendingUp, Activity } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function SaaSDashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/saas/login");
-    }
+    const checkUser = async () => {
+      if (loading) return;
+
+      if (!user) {
+        router.push("/saas/login");
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("saas_companies")
+          .select("onboarding_completed")
+          .eq("owner_id", user.id)
+          .single();
+
+        if (error || !data?.onboarding_completed) {
+          router.push("/saas/onboarding");
+        } else {
+          setCheckingOnboarding(false);
+        }
+      } catch (error) {
+        console.error("Error checking onboarding status:", error);
+        router.push("/saas/onboarding");
+      }
+    };
+
+    checkUser();
   }, [user, loading, router]);
 
-  if (loading) {
+  if (loading || checkingOnboarding) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-white">Loading...</div>

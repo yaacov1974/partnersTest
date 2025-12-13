@@ -183,7 +183,8 @@ export default function AffiliateOnboardingPage() {
           payment_details: formData.payment_details,
           tax_info: formData.tax_info,
           preferred_currency: formData.preferred_currency,
-          bio: `Niche: ${formData.niche}. Platform: ${formData.promotion_platform}`, 
+          bio: `Niche: ${formData.niche}. Platform: ${formData.promotion_platform}`,
+          onboarding_completed: true,
         })
         .eq("profile_id", user.id);
 
