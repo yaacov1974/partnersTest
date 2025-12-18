@@ -13,6 +13,7 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
+      const authMode = searchParams.get('auth_mode') || 'login';
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
@@ -21,27 +22,50 @@ function AuthCallbackContent() {
       }
 
       if (session) {
-        // Validate Role
+        // Evaluate Role and Type
         const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
         
-        if (targetType) {
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session.user.id)
-                .single();
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-            if (profileError || !profile) {
+        if (profileError || !profile) {
+            if (authMode === 'login') {
                 await supabase.auth.signOut();
-                setError("Failed to retrieve user profile.");
+                setError("No account found with this email. Please sign up first if you're new here.");
                 return;
-            }
+            } else {
+                // SIGN UP MODE: Create profile if it doesn't exist (Google Signup)
+                if (targetType) {
+                    try {
+                        const { error: insertError } = await supabase.from('profiles').insert({
+                            id: session.user.id,
+                            email: session.user.email!,
+                            role: targetType,
+                            marketing_consent: false
+                        });
+                        if (insertError) throw insertError;
 
-            if (profile.role !== targetType) {
-                await supabase.auth.signOut();
-                setError(`Invalid account type. You are trying to log in as ${targetType}, but your account is registered as ${profile.role}.`);
-                return;
+                        // Create role-specific record
+                        if (targetType === 'saas') {
+                            await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
+                        } else {
+                            await supabase.from('partners').insert({ profile_id: session.user.id });
+                        }
+                    } catch (err: any) {
+                        console.error("Error creating profile during OAuth signup:", err);
+                        await supabase.auth.signOut();
+                        setError("Failed to create your account profile.");
+                        return;
+                    }
+                }
             }
+        } else if (targetType && profile.role !== targetType) {
+            await supabase.auth.signOut();
+            setError(`Invalid account type. You are trying to log in as ${targetType}, but your account is registered as ${profile.role}.`);
+            return;
         }
 
         router.push(next);
@@ -49,20 +73,34 @@ function AuthCallbackContent() {
         // If no session found yet, set up a listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (event === 'SIGNED_IN' && session) {
-             // Validate Role (Copy logic from above or refactor)
+             // Logic repeated for safety
              const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
-             if (targetType) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .single();
-                
-                if (!profile || profile.role !== targetType) {
-                     await supabase.auth.signOut();
-                     setError(`Invalid account type. Expected ${targetType}.`);
-                     return;
+             const authMode = searchParams.get('auth_mode') || 'login';
+
+             const { data: profile } = await supabase
+                 .from('profiles')
+                 .select('*')
+                 .eq('id', session.user.id)
+                 .single();
+             
+             if (!profile) {
+                if (authMode === 'login') {
+                    await supabase.auth.signOut();
+                    setError("No account found with this email. Please sign up first.");
+                    return;
+                } else if (targetType) {
+                    // Create profile... (Same as above)
+                    await supabase.from('profiles').insert({ id: session.user.id, email: session.user.email!, role: targetType });
+                    if (targetType === 'saas') {
+                        await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
+                    } else {
+                        await supabase.from('partners').insert({ profile_id: session.user.id });
+                    }
                 }
+             } else if (targetType && profile.role !== targetType) {
+                  await supabase.auth.signOut();
+                  setError(`Invalid account type. Expected ${targetType}.`);
+                  return;
              }
              router.push(next);
           }
@@ -72,7 +110,7 @@ function AuthCallbackContent() {
     };
 
     handleCallback();
-  }, [router, next]);
+  }, [router, next, searchParams]);
 
   if (error) {
     return (
