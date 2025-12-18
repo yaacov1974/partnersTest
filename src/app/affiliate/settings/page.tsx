@@ -146,15 +146,15 @@ export default function AffiliateSettingsPage() {
               <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Account & Identity</h3>
               <div className="flex flex-col gap-8">
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Full Name / Company Name</label>
+                    <label className="text-lg font-semibold text-white">Full Name / Company Name</label>
                     <Input required name="full_name" value={formData.full_name} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Phone Number</label>
+                    <label className="text-lg font-semibold text-white">Phone Number</label>
                     <Input name="phone" value={formData.phone} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                  <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Country of Residence</label>
+                    <label className="text-lg font-semibold text-white">Country of Residence</label>
                     <Input required name="country" value={formData.country} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function AffiliateSettingsPage() {
               <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Promotion Channel Details</h3>
               <div className="flex flex-col gap-8">
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Main Platform</label>
+                    <label className="text-lg font-semibold text-white">Main Platform</label>
                      <select 
                         name="promotion_platform" 
                         value={formData.promotion_platform} 
@@ -181,15 +181,15 @@ export default function AffiliateSettingsPage() {
                     </select>
                 </div>
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Platform URL</label>
+                    <label className="text-lg font-semibold text-white">Platform URL</label>
                     <Input name="platform_url" value={formData.platform_url} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                  <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Audience Size</label>
+                    <label className="text-lg font-semibold text-white">Audience Size</label>
                     <Input name="audience_size" value={formData.audience_size} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="e.g. 10k - 50k" />
                 </div>
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Niche / Topic</label>
+                    <label className="text-lg font-semibold text-white">Niche / Topic</label>
                     <Input name="niche" value={formData.niche} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function AffiliateSettingsPage() {
               <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Payment Details</h3>
               <div className="flex flex-col gap-8">
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Preferred Payment Method</label>
+                    <label className="text-lg font-semibold text-white">Preferred Payment Method</label>
                      <select 
                         name="payment_method" 
                         value={formData.payment_method} 
@@ -213,7 +213,7 @@ export default function AffiliateSettingsPage() {
                     </select>
                 </div>
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Preferred Currency</label>
+                    <label className="text-lg font-semibold text-white">Preferred Currency</label>
                      <select 
                         name="preferred_currency" 
                         value={formData.preferred_currency} 
@@ -226,11 +226,11 @@ export default function AffiliateSettingsPage() {
                     </select>
                 </div>
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Payment Account Details</label>
+                    <label className="text-lg font-semibold text-white">Payment Account Details</label>
                     <Input required name="payment_details" value={formData.payment_details} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="PayPal Email or IBAN/SWIFT" />
                 </div>
                 <div className="space-y-3">
-                    <label className="text-lg font-semibold text-indigo-500">Tax Info (ID / VAT Number)</label>
+                    <label className="text-lg font-semibold text-white">Tax Info (ID / VAT Number)</label>
                     <Input name="tax_info" value={formData.tax_info} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
