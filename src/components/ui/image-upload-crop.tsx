@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
+import { useState, useRef, useEffect, useCallback } from "react";
+import Cropper, { Area } from "react-easy-crop";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { centerAspectCrop, getCroppedImg } from "@/lib/image-utils";
-import { Loader2, Upload, X } from "lucide-react";
+import { getCroppedImg } from "@/lib/image-utils";
+import { Loader2, Upload, X, ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 
 interface ImageUploadWithCropProps {
   onImageCropped: (blob: Blob) => void;
@@ -19,16 +19,16 @@ interface ImageUploadWithCropProps {
 
 export function ImageUploadWithCrop({
   onImageCropped,
-  aspectRatio = 5 / 1, // Default to 5:1 as requested (500x100)
+  aspectRatio = 5 / 1,
   initialImage,
   className,
   circularCrop = false,
 }: ImageUploadWithCropProps) {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const [crop, setCrop] = useState<Crop>();
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [completedCrop, setCompletedCrop] = useState<Area | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialImage || null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -41,7 +41,8 @@ export function ImageUploadWithCrop({
 
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined); // Makes crop preview update between images
+      setCrop({ x: 0, y: 0 }); // Reset crop
+      setZoom(1); // Reset zoom
       const reader = new FileReader();
       reader.addEventListener("load", () => {
         setSelectedFile(reader.result?.toString() || "");
@@ -51,13 +52,12 @@ export function ImageUploadWithCrop({
     }
   };
 
-  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const { width, height } = e.currentTarget;
-    setCrop(centerAspectCrop(width, height, aspectRatio));
-  };
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCompletedCrop(croppedAreaPixels);
+  }, []);
 
   const handleCropComplete = async () => {
-    if (completedCrop && imgRef.current && selectedFile) {
+    if (completedCrop && selectedFile) {
         setIsProcessing(true);
       try {
         const blob = await getCroppedImg(selectedFile, completedCrop);
@@ -81,9 +81,6 @@ export function ImageUploadWithCrop({
     e.preventDefault();
     setPreviewUrl(null);
     if(fileInputRef.current) fileInputRef.current.value = "";
-    // Notice: We are not notifying parent about removal yet to keep it simple, 
-    // but ideally parent should know image is removed. 
-    // For now this just clears UI preview until next upload.
   };
 
   return (
@@ -132,30 +129,37 @@ export function ImageUploadWithCrop({
           <DialogHeader>
             <DialogTitle>Crop Image</DialogTitle>
             <DialogDescription className="text-zinc-400">
-              Drag to adjust the crop area.
+              Drag to adjust position and scroll to zoom.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex items-center justify-center p-4 bg-black/50 rounded-lg max-h-[60vh] overflow-auto">
+          <div className="relative h-[400px] w-full bg-black/50 rounded-lg overflow-hidden">
              {selectedFile && (
-                <ReactCrop
+                <Cropper
+                    image={selectedFile}
                     crop={crop}
-                    onChange={(_, percentCrop) => setCrop(percentCrop)}
-                    onComplete={(c) => setCompletedCrop(c)}
+                    zoom={zoom}
                     aspect={aspectRatio}
-                    circularCrop={circularCrop}
-                    className="max-w-full"
-                >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                        ref={imgRef}
-                        alt="Crop me"
-                        src={selectedFile}
-                        onLoad={onImageLoad}
-                        className="max-w-full object-contain"
-                    />
-                </ReactCrop>
+                    cropShape={circularCrop ? 'round' : 'rect'}
+                    showGrid={false}
+                    onCropChange={setCrop}
+                    onCropComplete={onCropComplete}
+                    onZoomChange={setZoom}
+                />
              )}
+          </div>
+          
+          <div className="flex items-center gap-2 px-2">
+             <ZoomOut className="h-4 w-4 text-zinc-400" />
+             <Slider 
+                value={[zoom]} 
+                min={1} 
+                max={3} 
+                step={0.1} 
+                onValueChange={(vals) => setZoom(vals[0])}
+                className="flex-1"
+             />
+             <ZoomIn className="h-4 w-4 text-zinc-400" />
           </div>
 
           <DialogFooter>

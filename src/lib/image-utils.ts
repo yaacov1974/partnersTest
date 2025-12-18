@@ -1,35 +1,15 @@
-import {
-  centerCrop,
-  makeAspectCrop,
-  PercentCrop,
-  PixelCrop,
-} from 'react-image-crop';
-
-// This helper function centers the crop area based on aspect ratio
-export function centerAspectCrop(
-  mediaWidth: number,
-  mediaHeight: number,
-  aspect: number,
-) {
-  return centerCrop(
-    makeAspectCrop(
-      {
-        unit: '%',
-        width: 90,
-      },
-      aspect,
-      mediaWidth,
-      mediaHeight,
-    ),
-    mediaWidth,
-    mediaHeight,
-  );
-}
+// Pixel crop type from react-easy-crop
+export type Area = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 // Canvas-based image cropping
 export async function getCroppedImg(
   imageSrc: string,
-  pixelCrop: PixelCrop,
+  pixelCrop: Area,
   rotation = 0
 ): Promise<Blob | null> {
   const image = await createImage(imageSrc);
