@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 import { OnboardingHeader } from "@/components/OnboardingHeader";
 import { Footer } from "@/components/Footer";
+import { ImageUploadWithCrop } from "@/components/ui/image-upload-crop";
 
 // Field Types
 // Field Types
@@ -209,34 +210,35 @@ export default function SaaSOnboardingPage() {
     setFormData((prev) => ({ ...prev, [fieldName]: newValues.join(", ") }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
 
+
+  const handleImageCropped = async (blob: Blob) => {
+    if (!user) return;
     setIsUploading(true);
+    
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = "jpg"; // We are exporting as JPEG in utility
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('logos')
-        .upload(filePath, file);
+        .upload(filePath, blob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
-      
       if (data) {
         setFormData(prev => ({ ...prev, logo_url: data.publicUrl }));
       }
     } catch (error: any) {
-       console.error("Error uploading logo:", error);
-       alert("Error uploading logo: " + error.message);
+        console.error("Error uploading logo:", error);
+        alert("Error uploading logo: " + error.message);
     } finally {
-       setIsUploading(false);
+        setIsUploading(false);
     }
   };
 
@@ -408,24 +410,13 @@ export default function SaaSOnboardingPage() {
                       );
                     })}
                   </div>
+
                 ) : step.type === "image" ? (
-                  <div className="flex flex-col items-center gap-4">
-                     <div className="relative h-32 w-32 rounded-full overflow-hidden bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center group hover:border-indigo-500 transition-colors">
-                        {formData.logo_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={formData.logo_url} alt="Logo Preview" className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="text-zinc-500 text-center p-2">
-                             {isUploading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : "No Logo"}
-                          </div>
-                        )}
-                        
-                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity text-xs font-medium">
-                           {isUploading ? "Uploading..." : "Upload"}
-                           <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={isUploading} />
-                        </label>
-                     </div>
-                     {formData.logo_url && <p className="text-sm text-green-500 flex items-center"><Check className="w-4 h-4 mr-1"/> Uploaded Successfully</p>}
+                  <div className="flex justify-center">
+                    <ImageUploadWithCrop 
+                        onImageCropped={handleImageCropped} 
+                        initialImage={formData.logo_url}
+                    />
                   </div>
                 ) : (
                   <input

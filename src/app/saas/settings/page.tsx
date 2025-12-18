@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Check } from "lucide-react";
+import { ImageUploadWithCrop } from "@/components/ui/image-upload-crop";
 
 export default function SaaSSettingsPage() {
   const { user, loading } = useAuth();
@@ -16,6 +17,7 @@ export default function SaaSSettingsPage() {
   
   const [formData, setFormData] = useState({
     name: "",
+    logo_url: "",
     website: "",
     short_description: "",
     long_description: "",
@@ -49,6 +51,7 @@ export default function SaaSSettingsPage() {
         if (data) {
           setFormData({
             name: data.name || "",
+            logo_url: data.logo_url || "",
             website: data.website || "",
             short_description: data.short_description || "",
             long_description: data.long_description || "",
@@ -92,6 +95,7 @@ export default function SaaSSettingsPage() {
         .from("saas_companies")
         .update({
           name: formData.name,
+          logo_url: formData.logo_url,
           website: formData.website,
           commission_rate: parseFloat(formData.commission_rate),
           short_description: formData.short_description,
@@ -126,6 +130,34 @@ export default function SaaSSettingsPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageCropped = async (blob: Blob) => {
+    if (!user) return;
+    
+    try {
+      const fileExt = "jpg";
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('logos')
+        .upload(filePath, blob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
+      if (data) {
+        setFormData(prev => ({ ...prev, logo_url: data.publicUrl }));
+        // Auto save logo update for better UX or let user click save? 
+        // Let's just update state, user clicks save.
+      }
+    } catch (error: any) {
+        console.error("Error uploading logo:", error);
+    }
+  };
+
   if (loading || isLoadingData) {
     return (
       <div className="flex bg-black items-center justify-center p-8">
@@ -154,31 +186,43 @@ export default function SaaSSettingsPage() {
             {/* Basic Service Details */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Basic Service Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Company Name</label>
-                    <Input required name="name" value={formData.name} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
-                </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Website URL</label>
-                    <Input required type="url" name="website" value={formData.website} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Headline (Short Description)</label>
-                    <Input required name="short_description" value={formData.short_description} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" maxLength={100} />
-                </div>
-                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium text-zinc-200">Long Description</label>
-                  <textarea name="long_description" value={formData.long_description} onChange={handleChange} className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300" />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Category</label>
-                    <Input name="category" value={formData.category} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Year Founded</label>
-                    <Input type="number" name="year_founded" value={formData.year_founded} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
-                </div>
+              
+              <div className="flex flex-col md:flex-row gap-8">
+                 <div className="flex-shrink-0">
+                    <label className="text-sm font-medium text-zinc-200 block mb-2">Company Logo</label>
+                    <ImageUploadWithCrop 
+                        onImageCropped={handleImageCropped} 
+                        initialImage={formData.logo_url}
+                        className="w-32"
+                    />
+                 </div>
+                 
+                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-200">Company Name</label>
+                        <Input required name="name" value={formData.name} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                    </div>
+                     <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-200">Website URL</label>
+                        <Input required type="url" name="website" value={formData.website} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm font-medium text-zinc-200">Headline (Short Description)</label>
+                        <Input required name="short_description" value={formData.short_description} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" maxLength={100} />
+                    </div>
+                     <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-medium text-zinc-200">Long Description</label>
+                      <textarea name="long_description" value={formData.long_description} onChange={handleChange} className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-200">Category</label>
+                        <Input name="category" value={formData.category} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-200">Year Founded</label>
+                        <Input type="number" name="year_founded" value={formData.year_founded} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                    </div>
+                 </div>
               </div>
             </div>
 
