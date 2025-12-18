@@ -23,19 +23,6 @@ export default function AffiliateDashboardPage() {
       }
 
       try {
-        // Essential Guard: Verify the profile exists
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (!profile) {
-          await supabase.auth.signOut();
-          router.push("/affiliate/login?error=account_not_found");
-          return;
-        }
-
         // Check for onboarding completion
         const { data: partner, error } = await supabase
           .from("partners")

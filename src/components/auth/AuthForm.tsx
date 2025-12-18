@@ -137,7 +137,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}&auth_mode=${mode}`;
+      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",

@@ -13,16 +13,15 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const authMode = searchParams.get('auth_mode') || 'login';
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
-        window.location.href = `/login?error=${encodeURIComponent(sessionError.message)}`;
+        window.location.href = `/${next.includes('affiliate') ? 'affiliate' : 'saas'}/login?error=${encodeURIComponent(sessionError.message)}`;
         return;
       }
 
       if (session) {
-        const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : 'saas';
+        const targetType = next.startsWith('/affiliate') ? 'affiliate' : 'saas';
         const loginPage = `/${targetType}/login`;
         
         // 1. Check for profile
@@ -33,48 +32,47 @@ function AuthCallbackContent() {
             .maybeSingle();
 
         if (!profile) {
-            // AUTO-SIGNUP: If user authenticated with Google but has no profile, create one.
-            if (!targetType) {
-                await supabase.auth.signOut();
-                window.location.href = `/${targetType || 'saas'}/login?error=${encodeURIComponent("Invalid context for automatic account creation.")}`;
-                return;
-            }
-
+            // NEW USER: Auto-create profile
             try {
                 // Create Profile
-                const { error: insertError } = await supabase.from('profiles').insert({
+                const { error: insertError } = await supabase.from('profiles').upsert({
                     id: session.user.id,
                     email: session.user.email!,
                     role: targetType,
                     marketing_consent: false
                 });
+                
                 if (insertError) throw insertError;
 
                 // Create Role-specific table entry
                 if (targetType === 'saas') {
-                    await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
+                    await supabase.from('saas_companies').upsert({ 
+                        owner_id: session.user.id, 
+                        name: 'My Company' 
+                    }, { onConflict: 'owner_id' });
                 } else {
-                    await supabase.from('partners').insert({ profile_id: session.user.id });
+                    await supabase.from('partners').upsert({ 
+                        profile_id: session.user.id 
+                    }, { onConflict: 'profile_id' });
                 }
             } catch (err: any) {
-                console.error("Auto-Signup failed:", err);
+                console.error("Auto-Signup Error:", err);
                 await supabase.auth.signOut();
-                window.location.href = `/${targetType}/login?error=${encodeURIComponent("Failed to initialize your account automatically.")}`;
+                window.location.href = `${loginPage}?error=${encodeURIComponent("Account initialization failed.")}`;
                 return;
             }
         } else {
-            // EXISTING USER: Verify role matches the page they are on
-            if (targetType && profile.role !== targetType) {
+            // EXISTING USER: Role validation
+            if (profile.role !== targetType) {
                 await supabase.auth.signOut();
-                window.location.href = `/${targetType}/login?error=${encodeURIComponent(`Account mismatch: You are registered as ${profile.role}`)}`;
+                window.location.href = `${loginPage}?error=${encodeURIComponent(`Role mismatch: Registered as ${profile.role}`)}`;
                 return;
             }
         }
 
-        // Redirect to dashboard (or next)
-        window.location.href = next;
+        // REDIRECT TO DASHBOARD
+        router.push(next);
       } else {
-        // Handle race conditions where session is not immediately available
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_IN' && session) {
              window.location.reload();
