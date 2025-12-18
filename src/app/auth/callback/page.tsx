@@ -13,7 +13,20 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const authMode = searchParams.get('auth_mode') || 'login';
+      // Robustly extract auth_mode (check top level OR nested in 'next' param)
+      const topLevelAuthMode = searchParams.get('auth_mode');
+      let authMode = topLevelAuthMode || 'login';
+      
+      if (!topLevelAuthMode && next) {
+        try {
+          const nextUrl = new URL(next, window.location.origin);
+          const nestedAuthMode = nextUrl.searchParams.get('auth_mode');
+          if (nestedAuthMode) authMode = nestedAuthMode;
+        } catch (e) {
+          // next might not be a full URL, just a path
+        }
+      }
+
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
@@ -73,9 +86,18 @@ function AuthCallbackContent() {
         // If no session found yet, set up a listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (event === 'SIGNED_IN' && session) {
-             // Logic repeated for safety
              const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
-             const authMode = searchParams.get('auth_mode') || 'login';
+             
+             // Robustly extract auth_mode for the listener
+             const topLevelAuthMode = searchParams.get('auth_mode');
+             let currentAuthMode = topLevelAuthMode || 'login';
+             if (!topLevelAuthMode && next) {
+               try {
+                 const nextUrl = new URL(next, window.location.origin);
+                 const nestedAuthMode = nextUrl.searchParams.get('auth_mode');
+                 if (nestedAuthMode) currentAuthMode = nestedAuthMode;
+               } catch (e) {}
+             }
 
              const { data: profile } = await supabase
                  .from('profiles')
@@ -84,13 +106,18 @@ function AuthCallbackContent() {
                  .single();
              
              if (!profile) {
-                if (authMode === 'login') {
+                if (currentAuthMode === 'login') {
                     await supabase.auth.signOut();
                     setError("No account found with this email. Please sign up first.");
                     return;
                 } else if (targetType) {
-                    // Create profile... (Same as above)
-                    await supabase.from('profiles').insert({ id: session.user.id, email: session.user.email!, role: targetType });
+                    // Create profile
+                    await supabase.from('profiles').insert({ 
+                        id: session.user.id, 
+                        email: session.user.email!, 
+                        role: targetType,
+                        marketing_consent: false
+                    });
                     if (targetType === 'saas') {
                         await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
                     } else {
