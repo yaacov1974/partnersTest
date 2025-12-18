@@ -181,7 +181,7 @@ export default function SaaSSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
             
             {/* Basic Service Details */}
             <div className="space-y-6">
@@ -203,15 +203,15 @@ export default function SaaSSettingsPage() {
                  <div className="flex flex-col gap-8">
                     <div className="space-y-3">
                         <label className="text-lg font-semibold text-zinc-200">Company Name</label>
-                        <Input required name="name" value={formData.name} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        <Input required name="name" value={formData.name} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                     </div>
                      <div className="space-y-3">
                         <label className="text-lg font-semibold text-zinc-200">Website URL</label>
-                        <Input required type="url" name="website" value={formData.website} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        <Input required type="url" name="website" value={formData.website} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                     </div>
                     <div className="space-y-3">
                         <label className="text-lg font-semibold text-zinc-200">Headline (Short Description)</label>
-                        <Input required name="short_description" value={formData.short_description} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" maxLength={100} />
+                        <Input required name="short_description" value={formData.short_description} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" maxLength={100} />
                     </div>
                      <div className="space-y-3">
                       <label className="text-lg font-semibold text-zinc-200">Long Description</label>
@@ -219,11 +219,11 @@ export default function SaaSSettingsPage() {
                     </div>
                     <div className="space-y-3">
                         <label className="text-lg font-semibold text-zinc-200">Category</label>
-                        <Input name="category" value={formData.category} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        <Input name="category" value={formData.category} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                     </div>
                     <div className="space-y-3">
                         <label className="text-lg font-semibold text-zinc-200">Year Founded</label>
-                        <Input type="number" name="year_founded" value={formData.year_founded} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        <Input type="number" name="year_founded" value={formData.year_founded} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                     </div>
                  </div>
               </div>
@@ -235,27 +235,27 @@ export default function SaaSSettingsPage() {
               <div className="flex flex-col gap-8">
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Commission Model</label>
-                    <Input name="commission_model" value={formData.commission_model} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input name="commission_model" value={formData.commission_model} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                 <div className="space-y-3">
                    <label className="text-lg font-semibold text-zinc-200">Commission Rate (%)</label>
-                   <Input type="number" name="commission_rate" value={formData.commission_rate} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                   <Input type="number" name="commission_rate" value={formData.commission_rate} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Cookie Duration (Days)</label>
-                    <Input type="number" name="cookie_duration" value={formData.cookie_duration} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input type="number" name="cookie_duration" value={formData.cookie_duration} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                 <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Tracking Method</label>
-                    <Input name="tracking_method" value={formData.tracking_method} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input name="tracking_method" value={formData.tracking_method} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Recommended Landing Page URL</label>
-                    <Input type="url" name="landing_page_url" value={formData.landing_page_url} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input type="url" name="landing_page_url" value={formData.landing_page_url} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                 <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Exclusive Deal for Partners</label>
-                    <Input name="exclusive_deal" value={formData.exclusive_deal} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input name="exclusive_deal" value={formData.exclusive_deal} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
             </div>
@@ -266,15 +266,15 @@ export default function SaaSSettingsPage() {
               <div className="flex flex-col gap-8">
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Technical Contact (Email)</label>
-                    <Input type="email" name="technical_contact" value={formData.technical_contact} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input type="email" name="technical_contact" value={formData.technical_contact} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                 <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Geo Restrictions</label>
-                    <Input name="geo_restrictions" value={formData.geo_restrictions} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input name="geo_restrictions" value={formData.geo_restrictions} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Supported Languages</label>
-                    <Input name="supported_languages" value={formData.supported_languages} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <Input name="supported_languages" value={formData.supported_languages} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-indigo-500 text-white px-4 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
             </div>
