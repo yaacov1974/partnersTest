@@ -127,7 +127,7 @@ export default function AffiliateSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white">Settings</h1>
+        <h1 className="text-3xl font-bold text-[#c27aff]">Settings</h1>
         <p className="text-zinc-400">Manage your partner profile and payment details.</p>
       </div>
 
@@ -139,38 +139,38 @@ export default function AffiliateSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
             
             {/* Account & Identity */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Account & Identity</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Full Name / Company Name</label>
-                    <Input required name="full_name" value={formData.full_name} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+              <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Account & Identity</h3>
+              <div className="flex flex-col gap-8">
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Full Name / Company Name</label>
+                    <Input required name="full_name" value={formData.full_name} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Phone Number</label>
-                    <Input name="phone" value={formData.phone} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Phone Number</label>
+                    <Input name="phone" value={formData.phone} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Country of Residence</label>
-                    <Input required name="country" value={formData.country} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Country of Residence</label>
+                    <Input required name="country" value={formData.country} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
             </div>
 
              {/* Promotion Channel Details */}
              <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Promotion Channel Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Main Platform</label>
+              <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Promotion Channel Details</h3>
+              <div className="flex flex-col gap-8">
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Main Platform</label>
                      <select 
                         name="promotion_platform" 
                         value={formData.promotion_platform} 
                         onChange={handleChange}
-                        className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300"
+                        className="flex h-16 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-5 text-2xl text-white shadow-sm transition-colors focus-visible:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer"
                      >
                         <option value="Blog">Blog</option>
                         <option value="YouTube">YouTube</option>
@@ -180,58 +180,58 @@ export default function AffiliateSettingsPage() {
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Platform URL</label>
-                    <Input name="platform_url" value={formData.platform_url} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Platform URL</label>
+                    <Input name="platform_url" value={formData.platform_url} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Audience Size</label>
-                    <Input name="audience_size" value={formData.audience_size} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="e.g. 10k - 50k" />
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Audience Size</label>
+                    <Input name="audience_size" value={formData.audience_size} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="e.g. 10k - 50k" />
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Niche / Topic</label>
-                    <Input name="niche" value={formData.niche} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Niche / Topic</label>
+                    <Input name="niche" value={formData.niche} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
             </div>
 
             {/* Payment Details */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Payment Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Preferred Payment Method</label>
+              <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Payment Details</h3>
+              <div className="flex flex-col gap-8">
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Preferred Payment Method</label>
                      <select 
                         name="payment_method" 
                         value={formData.payment_method} 
                         onChange={handleChange}
-                        className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300"
+                        className="flex h-16 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-5 text-2xl text-white shadow-sm transition-colors focus-visible:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer"
                      >
                         <option value="PayPal">PayPal</option>
                         <option value="Bank Transfer">Bank Transfer</option>
                         <option value="Payoneer">Payoneer</option>
                     </select>
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Preferred Currency</label>
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Preferred Currency</label>
                      <select 
                         name="preferred_currency" 
                         value={formData.preferred_currency} 
                         onChange={handleChange}
-                        className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300"
+                        className="flex h-16 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-5 text-2xl text-white shadow-sm transition-colors focus-visible:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer"
                      >
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
                         <option value="ILS">ILS (₪)</option>
                     </select>
                 </div>
-                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Payment Account Details</label>
-                    <Input required name="payment_details" value={formData.payment_details} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" placeholder="PayPal Email or IBAN/SWIFT" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Payment Account Details</label>
+                    <Input required name="payment_details" value={formData.payment_details} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="PayPal Email or IBAN/SWIFT" />
                 </div>
-                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Tax Info (ID / VAT Number)</label>
-                    <Input name="tax_info" value={formData.tax_info} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-indigo-500">Tax Info (ID / VAT Number)</label>
+                    <Input name="tax_info" value={formData.tax_info} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
                 </div>
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function AffiliateSettingsPage() {
                 <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white min-w-[150px]"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white min-w-[200px] h-16 text-xl font-semibold mt-8"
                 >
                 {isSubmitting ? (
                     <>

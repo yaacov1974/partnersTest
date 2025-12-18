@@ -269,7 +269,7 @@ export default function AffiliateOnboardingPage() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               
               <div className="space-y-2 text-center md:text-left">
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#c27aff] mb-4">
                   {step.title}
                 </h2>
                 {step.description && (
