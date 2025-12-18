@@ -124,10 +124,13 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
+      // Save intent to localStorage for the callback to verify
+      localStorage.setItem("auth_intent", mode);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}&auth_mode=${mode}`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

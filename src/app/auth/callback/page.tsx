@@ -13,7 +13,14 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const authMode = searchParams.get('auth_mode') || 'login';
+      // 1. Identify Intent (Prioritize localStorage to prevent URL manipulation)
+      const storedIntent = localStorage.getItem("auth_intent");
+      const urlAuthMode = searchParams.get('auth_mode');
+      const authMode = storedIntent || urlAuthMode || 'login';
+      
+      // Cleanup intent to avoid side effects on subsequent loads
+      localStorage.removeItem("auth_intent");
+
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
@@ -22,25 +29,24 @@ function AuthCallbackContent() {
       }
 
       if (session) {
-        // 1. Establish the context
         const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
         
-        // 2. Check for existing profile
-        const { data: profile, error: profileError } = await supabase
+        // 2. Lookup Profile
+        const { data: profile } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
-            .maybeSingle(); // maybeSingle returns null if not found instead of crashing
+            .maybeSingle();
 
         if (!profile) {
-            // PROFILE NOT FOUND
+            // CASE: NEW USER
             if (authMode === 'login') {
-                // If they are on the LOGIN page, we DO NOT allow them to create a new account
+                // ILLEGAL SIGNUP: User is on a login page but doesn't have an account
                 await supabase.auth.signOut();
-                setError("No account found with this email. Please sign up first if you're new here.");
+                setError("No account found for this email. Please go to the signup page to create an account.");
                 return;
             } else {
-                // SIGN UP MODE: We are allowed to create an account
+                // LEGAL SIGNUP
                 if (!targetType) {
                     await supabase.auth.signOut();
                     setError("Invalid signup context.");
@@ -48,7 +54,6 @@ function AuthCallbackContent() {
                 }
 
                 try {
-                    // Create Profile
                     const { error: insertError } = await supabase.from('profiles').insert({
                         id: session.user.id,
                         email: session.user.email!,
@@ -57,35 +62,32 @@ function AuthCallbackContent() {
                     });
                     if (insertError) throw insertError;
 
-                    // Create Role-specific table entry
                     if (targetType === 'saas') {
                         await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
                     } else {
                         await supabase.from('partners').insert({ profile_id: session.user.id });
                     }
                 } catch (err: any) {
-                    console.error("Critical error creating profile on OAuth signup:", err);
+                    console.error("Auth Callback Signup Error:", err);
                     await supabase.auth.signOut();
-                    setError("Failed to initialize your account. Please try again.");
+                    setError("Failed to create profile. Please try again.");
                     return;
                 }
             }
         } else {
-            // PROFILE EXISTS: Check if role matches the login page they are on
+            // CASE: EXISTING USER
             if (targetType && profile.role !== targetType) {
                 await supabase.auth.signOut();
-                setError(`Invalid account type. You are trying to log in as ${targetType}, but your account is registered as ${profile.role}.`);
+                setError(`Invalid account type. You are registered as ${profile.role}, but trying to access ${targetType} dashboard.`);
                 return;
             }
         }
 
-        // 3. Success! Redirect to target page
+        // 3. Success
         router.push(next);
       } else {
-        // If no session found yet (rare for OAuth but possible), set up a listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_IN' && session) {
-             // We just re-run the main logic by reloading the logic (re-invoking useEffect or just calling it)
              window.location.reload(); 
           }
         });
