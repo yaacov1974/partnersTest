@@ -88,11 +88,31 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
         router.push(`/${type}/onboarding`);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+
+        // Verify that the user has the correct role
+        if (signInData.user) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', signInData.user.id)
+            .single();
+
+          if (profileError) {
+            await supabase.auth.signOut();
+            throw new Error("Failed to verify account details.");
+          }
+
+          if (profile?.role !== type) {
+            await supabase.auth.signOut();
+            throw new Error(`Invalid account type. You are trying to log in as ${type}, but your account is registered as ${profile?.role || 'unknown'}.`);
+          }
+        }
+
         router.push(`/${type}/dashboard`);
       }
     } catch (err: any) {

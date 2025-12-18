@@ -13,9 +13,6 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Supabase client automatically handles the hash/code exchange on initialization
-      // We just need to wait for the session to be established.
-      
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
@@ -24,12 +21,50 @@ function AuthCallbackContent() {
       }
 
       if (session) {
+        // Validate Role
+        const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
+        
+        if (targetType) {
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profileError || !profile) {
+                await supabase.auth.signOut();
+                setError("Failed to retrieve user profile.");
+                return;
+            }
+
+            if (profile.role !== targetType) {
+                await supabase.auth.signOut();
+                setError(`Invalid account type. You are trying to log in as ${targetType}, but your account is registered as ${profile.role}.`);
+                return;
+            }
+        }
+
         router.push(next);
       } else {
         // If no session found yet, set up a listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (event === 'SIGNED_IN' && session) {
-            router.push(next);
+             // Validate Role (Copy logic from above or refactor)
+             const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
+             if (targetType) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (!profile || profile.role !== targetType) {
+                     await supabase.auth.signOut();
+                     setError(`Invalid account type. Expected ${targetType}.`);
+                     return;
+                }
+             }
+             router.push(next);
           }
         });
         return () => subscription.unsubscribe();
