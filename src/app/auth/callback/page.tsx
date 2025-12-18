@@ -36,6 +36,14 @@ function AuthCallbackContent() {
             // NEW USER detected
             if (authMode === 'login') {
                 // REJECT: This account doesn't have a profile yet and tried to LOGIN
+                // 1. Delete the accidental auth record via RPC
+                try {
+                    await supabase.rpc('delete_current_unauthorized_user');
+                } catch (e) {
+                    console.error("Cleanup RPC failed (expected if trigger already blocked it):", e);
+                }
+                
+                // 2. Clear session and redirect with error
                 await supabase.auth.signOut();
                 window.location.href = `${loginPage}?error=account_not_found`;
                 return;
