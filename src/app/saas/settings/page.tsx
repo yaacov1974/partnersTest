@@ -187,18 +187,20 @@ export default function SaaSSettingsPage() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Basic Service Details</h3>
               
-              <div className="flex flex-col md:flex-row gap-8">
-                 <div className="flex-shrink-0">
-                    <label className="text-sm font-medium text-zinc-200 block mb-2">Company Logo</label>
+              <div className="space-y-6">
+                 {/* Logo Section - Full Width */}
+                 <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-zinc-200">Company Logo</label>
                     <ImageUploadWithCrop 
                         onImageCropped={handleImageCropped} 
                         initialImage={formData.logo_url}
                         aspectRatio={5 / 1}
-                        className="w-full max-w-[300px]"
+                        className="w-full max-w-full"
                     />
                  </div>
-                 
-                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                 {/* Rest of Basic Details */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-zinc-200">Company Name</label>
                         <Input required name="name" value={formData.name} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
