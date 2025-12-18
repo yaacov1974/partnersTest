@@ -184,13 +184,13 @@ export default function SaaSSettingsPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             
             {/* Basic Service Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Basic Service Details</h3>
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-white border-b border-zinc-800 pb-4">Basic Service Details</h3>
               
-              <div className="space-y-6">
+              <div className="space-y-8">
                  {/* Logo Section - Full Width */}
-                 <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-zinc-200">Company Logo</label>
+                 <div className="flex flex-col gap-3">
+                    <label className="text-lg font-semibold text-zinc-200">Company Logo</label>
                     <ImageUploadWithCrop 
                         onImageCropped={handleImageCropped} 
                         initialImage={formData.logo_url}
@@ -200,81 +200,81 @@ export default function SaaSSettingsPage() {
                  </div>
 
                  {/* Rest of Basic Details */}
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-200">Company Name</label>
-                        <Input required name="name" value={formData.name} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                 <div className="flex flex-col gap-8">
+                    <div className="space-y-3">
+                        <label className="text-lg font-semibold text-zinc-200">Company Name</label>
+                        <Input required name="name" value={formData.name} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                     </div>
-                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-200">Website URL</label>
-                        <Input required type="url" name="website" value={formData.website} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                     <div className="space-y-3">
+                        <label className="text-lg font-semibold text-zinc-200">Website URL</label>
+                        <Input required type="url" name="website" value={formData.website} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                     </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm font-medium text-zinc-200">Headline (Short Description)</label>
-                        <Input required name="short_description" value={formData.short_description} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" maxLength={100} />
+                    <div className="space-y-3">
+                        <label className="text-lg font-semibold text-zinc-200">Headline (Short Description)</label>
+                        <Input required name="short_description" value={formData.short_description} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" maxLength={100} />
                     </div>
-                     <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-medium text-zinc-200">Long Description</label>
-                      <textarea name="long_description" value={formData.long_description} onChange={handleChange} className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300" />
+                     <div className="space-y-3">
+                      <label className="text-lg font-semibold text-zinc-200">Long Description</label>
+                      <textarea name="long_description" value={formData.long_description} onChange={handleChange} className="flex min-h-[150px] w-full rounded-md border border-zinc-800 bg-zinc-950 px-4 py-3 text-lg text-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300" />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-200">Category</label>
-                        <Input name="category" value={formData.category} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                    <div className="space-y-3">
+                        <label className="text-lg font-semibold text-zinc-200">Category</label>
+                        <Input name="category" value={formData.category} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-zinc-200">Year Founded</label>
-                        <Input type="number" name="year_founded" value={formData.year_founded} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                    <div className="space-y-3">
+                        <label className="text-lg font-semibold text-zinc-200">Year Founded</label>
+                        <Input type="number" name="year_founded" value={formData.year_founded} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                     </div>
                  </div>
               </div>
             </div>
 
             {/* Affiliate Program Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Affiliate Program Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Commission Model</label>
-                    <Input name="commission_model" value={formData.commission_model} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-white border-b border-zinc-800 pb-4">Affiliate Program Details</h3>
+              <div className="flex flex-col gap-8">
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Commission Model</label>
+                    <Input name="commission_model" value={formData.commission_model} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                <div className="space-y-2">
-                   <label className="text-sm font-medium text-zinc-200">Commission Rate (%)</label>
-                   <Input type="number" name="commission_rate" value={formData.commission_rate} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                   <label className="text-lg font-semibold text-zinc-200">Commission Rate (%)</label>
+                   <Input type="number" name="commission_rate" value={formData.commission_rate} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Cookie Duration (Days)</label>
-                    <Input type="number" name="cookie_duration" value={formData.cookie_duration} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Cookie Duration (Days)</label>
+                    <Input type="number" name="cookie_duration" value={formData.cookie_duration} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Tracking Method</label>
-                    <Input name="tracking_method" value={formData.tracking_method} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Tracking Method</label>
+                    <Input name="tracking_method" value={formData.tracking_method} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Recommended Landing Page URL</label>
-                    <Input type="url" name="landing_page_url" value={formData.landing_page_url} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Recommended Landing Page URL</label>
+                    <Input type="url" name="landing_page_url" value={formData.landing_page_url} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Exclusive Deal for Partners</label>
-                    <Input name="exclusive_deal" value={formData.exclusive_deal} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Exclusive Deal for Partners</label>
+                    <Input name="exclusive_deal" value={formData.exclusive_deal} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
               </div>
             </div>
 
              {/* Technical & Availability */}
-             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white border-b border-zinc-800 pb-2">Technical & Availability</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Technical Contact (Email)</label>
-                    <Input type="email" name="technical_contact" value={formData.technical_contact} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+             <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-white border-b border-zinc-800 pb-4">Technical & Availability</h3>
+              <div className="flex flex-col gap-8">
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Technical Contact (Email)</label>
+                    <Input type="email" name="technical_contact" value={formData.technical_contact} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-200">Geo Restrictions</label>
-                    <Input name="geo_restrictions" value={formData.geo_restrictions} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Geo Restrictions</label>
+                    <Input name="geo_restrictions" value={formData.geo_restrictions} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
-                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-zinc-200">Supported Languages</label>
-                    <Input name="supported_languages" value={formData.supported_languages} onChange={handleChange} className="bg-zinc-950 border-zinc-800 text-white" />
+                 <div className="space-y-3">
+                    <label className="text-lg font-semibold text-zinc-200">Supported Languages</label>
+                    <Input name="supported_languages" value={formData.supported_languages} onChange={handleChange} className="h-14 text-lg bg-zinc-950 border-zinc-800 text-white px-4" />
                 </div>
               </div>
             </div>
@@ -283,7 +283,7 @@ export default function SaaSSettingsPage() {
                 <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white min-w-[150px]"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white min-w-[200px] h-14 text-lg font-semibold mt-8"
                 >
                 {isSubmitting ? (
                     <>
