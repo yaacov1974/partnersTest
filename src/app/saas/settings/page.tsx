@@ -193,7 +193,8 @@ export default function SaaSSettingsPage() {
                     <ImageUploadWithCrop 
                         onImageCropped={handleImageCropped} 
                         initialImage={formData.logo_url}
-                        className="w-32"
+                        aspectRatio={5 / 1}
+                        className="w-full max-w-[300px]"
                     />
                  </div>
                  

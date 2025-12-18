@@ -14,13 +14,15 @@ interface ImageUploadWithCropProps {
   aspectRatio?: number;
   initialImage?: string;
   className?: string;
+  circularCrop?: boolean;
 }
 
 export function ImageUploadWithCrop({
   onImageCropped,
-  aspectRatio = 1,
+  aspectRatio = 5 / 1, // Default to 5:1 as requested (500x100)
   initialImage,
   className,
+  circularCrop = false,
 }: ImageUploadWithCropProps) {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -89,9 +91,11 @@ export function ImageUploadWithCrop({
       <div className={cn("flex flex-col items-center gap-4", className)}>
         <div 
             className={cn(
-                "relative h-32 w-32 rounded-full overflow-hidden bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center group hover:border-indigo-500 transition-colors cursor-pointer",
+                "relative overflow-hidden bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center group hover:border-indigo-500 transition-colors cursor-pointer",
+                circularCrop ? "rounded-full h-32 w-32" : "rounded-md h-[100px] w-full max-w-[500px]",
                 previewUrl && "border-solid border-indigo-500"
             )}
+            style={!circularCrop ? { aspectRatio: `${aspectRatio}` } : undefined}
             onClick={() => fileInputRef.current?.click()}
         >
           {previewUrl ? (
@@ -139,7 +143,7 @@ export function ImageUploadWithCrop({
                     onChange={(_, percentCrop) => setCrop(percentCrop)}
                     onComplete={(c) => setCompletedCrop(c)}
                     aspect={aspectRatio}
-                    circularCrop={true}
+                    circularCrop={circularCrop}
                     className="max-w-full"
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -416,6 +416,8 @@ export default function SaaSOnboardingPage() {
                     <ImageUploadWithCrop 
                         onImageCropped={handleImageCropped} 
                         initialImage={formData.logo_url}
+                        aspectRatio={5 / 1}
+                        className="w-full max-w-[500px]"
                     />
                   </div>
                 ) : (
