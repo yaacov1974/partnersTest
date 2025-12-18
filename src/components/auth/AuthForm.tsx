@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 interface AuthFormProps {
   type: "saas" | "affiliate";
@@ -23,6 +24,18 @@ export function AuthForm({ type, mode }: AuthFormProps) {
   const [showEmailSent, setShowEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const errorMsg = searchParams.get('error');
+    if (errorMsg) {
+        if (errorMsg === 'account_not_found') {
+            setError("No account found with this email. Please sign up first.");
+        } else {
+            setError(decodeURIComponent(errorMsg));
+        }
+    }
+  }, [searchParams]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,13 +137,12 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
-      // Save intent to localStorage for the callback to verify
-      localStorage.setItem("auth_intent", mode);
+      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}&auth_mode=${mode}`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

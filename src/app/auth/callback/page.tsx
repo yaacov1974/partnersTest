@@ -13,25 +13,19 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // 1. Identify Intent (Prioritize localStorage to prevent URL manipulation)
-      const storedIntent = localStorage.getItem("auth_intent");
-      const urlAuthMode = searchParams.get('auth_mode');
-      const authMode = storedIntent || urlAuthMode || 'login';
-      
-      // Cleanup intent to avoid side effects on subsequent loads
-      localStorage.removeItem("auth_intent");
-
+      const authMode = searchParams.get('auth_mode') || 'login';
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
-        setError(sessionError.message);
+        window.location.href = `/login?error=${encodeURIComponent(sessionError.message)}`;
         return;
       }
 
       if (session) {
-        const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : null;
+        const targetType = next.startsWith('/saas') ? 'saas' : next.startsWith('/affiliate') ? 'affiliate' : 'saas';
+        const loginPage = `/${targetType}/login`;
         
-        // 2. Lookup Profile
+        // 1. Check for profile
         const { data: profile } = await supabase
             .from('profiles')
             .select('*')
@@ -39,56 +33,51 @@ function AuthCallbackContent() {
             .maybeSingle();
 
         if (!profile) {
-            // CASE: NEW USER
+            // NEW USER detected
             if (authMode === 'login') {
-                // ILLEGAL SIGNUP: User is on a login page but doesn't have an account
+                // REJECT: This account doesn't have a profile yet and tried to LOGIN
                 await supabase.auth.signOut();
-                setError("No account found for this email. Please go to the signup page to create an account.");
+                window.location.href = `${loginPage}?error=account_not_found`;
                 return;
-            } else {
-                // LEGAL SIGNUP
-                if (!targetType) {
-                    await supabase.auth.signOut();
-                    setError("Invalid signup context.");
-                    return;
-                }
+            }
 
-                try {
-                    const { error: insertError } = await supabase.from('profiles').insert({
-                        id: session.user.id,
-                        email: session.user.email!,
-                        role: targetType,
-                        marketing_consent: false
-                    });
-                    if (insertError) throw insertError;
+            // ALLOW SIGNUP
+            try {
+                const { error: insertError } = await supabase.from('profiles').insert({
+                    id: session.user.id,
+                    email: session.user.email!,
+                    role: targetType,
+                    marketing_consent: false
+                });
+                if (insertError) throw insertError;
 
-                    if (targetType === 'saas') {
-                        await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
-                    } else {
-                        await supabase.from('partners').insert({ profile_id: session.user.id });
-                    }
-                } catch (err: any) {
-                    console.error("Auth Callback Signup Error:", err);
-                    await supabase.auth.signOut();
-                    setError("Failed to create profile. Please try again.");
-                    return;
+                if (targetType === 'saas') {
+                    await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
+                } else {
+                    await supabase.from('partners').insert({ profile_id: session.user.id });
                 }
+            } catch (err: any) {
+                console.error("Signup failed:", err);
+                await supabase.auth.signOut();
+                window.location.href = `${loginPage}?error=${encodeURIComponent("Failed to create profile")}`;
+                return;
             }
         } else {
-            // CASE: EXISTING USER
-            if (targetType && profile.role !== targetType) {
+            // EXISTING USER: Verify role
+            if (profile.role !== targetType) {
                 await supabase.auth.signOut();
-                setError(`Invalid account type. You are registered as ${profile.role}, but trying to access ${targetType} dashboard.`);
+                window.location.href = `${loginPage}?error=${encodeURIComponent(`Invalid account type: registered as ${profile.role}`)}`;
                 return;
             }
         }
 
-        // 3. Success
-        router.push(next);
+        // Redirect to dashboard (or next)
+        window.location.href = next;
       } else {
+        // Handle race conditions where session is not immediately available
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_IN' && session) {
-             window.location.reload(); 
+             window.location.reload();
           }
         });
         return () => subscription.unsubscribe();
