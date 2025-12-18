@@ -33,31 +33,15 @@ function AuthCallbackContent() {
             .maybeSingle();
 
         if (!profile) {
-            // NEW USER detected
-            if (authMode === 'login') {
-                // REJECT: This account doesn't have a profile yet and tried to LOGIN
-                console.log("Unauthorized login detected. Running cleanup...");
-                
-                // Small delay to ensure DB session is synchronized
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // 1. Delete the accidental auth record via RPC
-                const { data: status, error: rpcError } = await supabase.rpc('delete_current_unauthorized_user');
-                
-                if (rpcError) {
-                    console.error("Cleanup RPC Error:", rpcError);
-                } else {
-                    console.log("Cleanup Status:", status);
-                }
-                
-                // 2. Clear session and redirect with error
+            // AUTO-SIGNUP: If user authenticated with Google but has no profile, create one.
+            if (!targetType) {
                 await supabase.auth.signOut();
-                window.location.href = `${loginPage}?error=account_not_found`;
+                window.location.href = `/${targetType || 'saas'}/login?error=${encodeURIComponent("Invalid context for automatic account creation.")}`;
                 return;
             }
 
-            // ALLOW SIGNUP
             try {
+                // Create Profile
                 const { error: insertError } = await supabase.from('profiles').insert({
                     id: session.user.id,
                     email: session.user.email!,
@@ -66,22 +50,23 @@ function AuthCallbackContent() {
                 });
                 if (insertError) throw insertError;
 
+                // Create Role-specific table entry
                 if (targetType === 'saas') {
                     await supabase.from('saas_companies').insert({ owner_id: session.user.id, name: 'My Company' });
                 } else {
                     await supabase.from('partners').insert({ profile_id: session.user.id });
                 }
             } catch (err: any) {
-                console.error("Signup failed:", err);
+                console.error("Auto-Signup failed:", err);
                 await supabase.auth.signOut();
-                window.location.href = `${loginPage}?error=${encodeURIComponent("Failed to create profile")}`;
+                window.location.href = `/${targetType}/login?error=${encodeURIComponent("Failed to initialize your account automatically.")}`;
                 return;
             }
         } else {
-            // EXISTING USER: Verify role
-            if (profile.role !== targetType) {
+            // EXISTING USER: Verify role matches the page they are on
+            if (targetType && profile.role !== targetType) {
                 await supabase.auth.signOut();
-                window.location.href = `${loginPage}?error=${encodeURIComponent(`Invalid account type: registered as ${profile.role}`)}`;
+                window.location.href = `/${targetType}/login?error=${encodeURIComponent(`Account mismatch: You are registered as ${profile.role}`)}`;
                 return;
             }
         }
