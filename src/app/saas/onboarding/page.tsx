@@ -150,6 +150,7 @@ export default function SaaSOnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
@@ -225,7 +226,23 @@ export default function SaaSOnboardingPage() {
           onboarding_completed: true,
       };
 
-      // Check if record exists
+      // Ensure Profile Exists
+      const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
+      
+      if (!profile) {
+          // Create missing profile
+           const { error: profileError } = await supabase.from('profiles').insert({
+               id: user.id,
+               email: user.email!,
+               role: 'saas',
+               marketing_consent: false 
+           });
+           if (profileError) {
+             throw new Error(`Failed to create profile: ${profileError.message}`);
+           }
+      }
+
+      // Check if saas_companies record exists
       const { data: existingCompany } = await supabase
         .from('saas_companies')
         .select('id')
@@ -249,8 +266,9 @@ export default function SaaSOnboardingPage() {
       }
 
       router.push("/saas/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error);
+      setErrorDetails(error.message || "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }
@@ -396,6 +414,18 @@ export default function SaaSOnboardingPage() {
                   )}
                 </Button>
               </div>
+
+              {errorDetails && (
+                 <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
+                    {errorDetails}
+                    <button 
+                        onClick={() => { setErrorDetails(null); handleSubmit(); }} 
+                        className="ml-2 underline font-semibold hover:text-red-400"
+                    >
+                        Try Again
+                    </button>
+                 </div>
+              )}
 
             </div>
           </CardContent>
