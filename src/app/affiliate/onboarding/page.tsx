@@ -169,9 +169,7 @@ export default function AffiliateOnboardingPage() {
     try {
       if (!user) return;
 
-      const { error } = await supabase
-        .from("partners")
-        .update({
+      const payload = {
           full_name: formData.full_name,
           phone: formData.phone,
           country: formData.country,
@@ -185,10 +183,31 @@ export default function AffiliateOnboardingPage() {
           preferred_currency: formData.preferred_currency,
           bio: `Niche: ${formData.niche}. Platform: ${formData.promotion_platform}`,
           onboarding_completed: true,
-        })
-        .eq("profile_id", user.id);
+      };
 
-      if (error) throw error;
+      // Check if record exists
+      const { data: existingPartner } = await supabase
+        .from('partners')
+        .select('id')
+        .eq('profile_id', user.id)
+        .maybeSingle();
+
+      if (existingPartner) {
+        const { error } = await supabase
+          .from("partners")
+          .update(payload)
+          .eq("profile_id", user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("partners")
+          .insert({
+            profile_id: user.id,
+            ...payload
+          });
+        if (error) throw error;
+      }
+
       router.push("/affiliate/dashboard");
     } catch (error) {
       console.error("Error updating profile:", error);

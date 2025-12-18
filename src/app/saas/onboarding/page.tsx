@@ -205,9 +205,7 @@ export default function SaaSOnboardingPage() {
 
       const languagesArray = formData.supported_languages.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
 
-      const { error } = await supabase
-        .from("saas_companies")
-        .update({
+      const payload = {
           name: formData.name,
           website: formData.website,
           commission_rate: parseFloat(formData.commission_rate) || 0,
@@ -219,16 +217,37 @@ export default function SaaSOnboardingPage() {
           cookie_duration: parseInt(formData.cookie_duration) || 30,
           landing_page_url: formData.landing_page_url,
           tracking_method: formData.tracking_method,
-          partner_program_url: formData.partner_program_url, // Note: Not in steps, assuming it might be same as landing or website
+          partner_program_url: formData.partner_program_url, 
           exclusive_deal: formData.exclusive_deal,
           technical_contact: formData.technical_contact,
           geo_restrictions: formData.geo_restrictions,
           supported_languages: languagesArray,
           onboarding_completed: true,
-        })
-        .eq("owner_id", user.id);
+      };
 
-      if (error) throw error;
+      // Check if record exists
+      const { data: existingCompany } = await supabase
+        .from('saas_companies')
+        .select('id')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+
+      if (existingCompany) {
+         const { error } = await supabase
+            .from("saas_companies")
+            .update(payload)
+            .eq("owner_id", user.id);
+         if (error) throw error;
+      } else {
+         const { error } = await supabase
+            .from("saas_companies")
+            .insert({
+                owner_id: user.id,
+                ...payload
+            });
+         if (error) throw error;
+      }
+
       router.push("/saas/dashboard");
     } catch (error) {
       console.error("Error updating profile:", error);
