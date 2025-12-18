@@ -169,7 +169,7 @@ export default function SaaSSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white">Settings</h1>
+        <h1 className="text-3xl font-bold text-[#c27aff]">Settings</h1>
         <p className="text-zinc-400">Manage your company profile and program details.</p>
       </div>
 
@@ -185,7 +185,7 @@ export default function SaaSSettingsPage() {
             
             {/* Basic Service Details */}
             <div className="space-y-6">
-              <h3 className="text-3xl font-bold text-white border-b border-zinc-800 pb-4">Basic Service Details</h3>
+              <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Basic Service Details</h3>
               
               <div className="space-y-8">
                  {/* Logo Section - Full Width */}
@@ -231,7 +231,7 @@ export default function SaaSSettingsPage() {
 
             {/* Affiliate Program Details */}
             <div className="space-y-6">
-              <h3 className="text-3xl font-bold text-white border-b border-zinc-800 pb-4">Affiliate Program Details</h3>
+              <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Affiliate Program Details</h3>
               <div className="flex flex-col gap-8">
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Commission Model</label>
@@ -262,7 +262,7 @@ export default function SaaSSettingsPage() {
 
              {/* Technical & Availability */}
              <div className="space-y-6">
-              <h3 className="text-3xl font-bold text-white border-b border-zinc-800 pb-4">Technical & Availability</h3>
+              <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Technical & Availability</h3>
               <div className="flex flex-col gap-8">
                  <div className="space-y-3">
                     <label className="text-lg font-semibold text-zinc-200">Technical Contact (Email)</label>
