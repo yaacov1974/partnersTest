@@ -14,7 +14,8 @@ import { OnboardingHeader } from "@/components/OnboardingHeader";
 import { Footer } from "@/components/Footer";
 
 // Field Types
-type FieldType = "text" | "url" | "number" | "email" | "textarea" | "chips" | "multi-chips";
+// Field Types
+type FieldType = "text" | "url" | "number" | "email" | "textarea" | "chips" | "multi-chips" | "image";
 
 interface Step {
   field: keyof typeof initialFormData;
@@ -28,6 +29,7 @@ interface Step {
 
 const initialFormData = {
   name: "",
+  logo_url: "",
   website: "",
   short_description: "",
   long_description: "",
@@ -51,6 +53,13 @@ const STEPS: Step[] = [
     type: "text",
     title: "What is your company's name?",
     placeholder: "e.g. Acme Inc.",
+    required: true,
+  },
+  {
+    field: "logo_url",
+    type: "image",
+    title: "Upload your company logo",
+    description: "Best size: 400x400px. formats: PNG, JPG.",
     required: true,
   },
   {
@@ -150,6 +159,7 @@ export default function SaaSOnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [formData, setFormData] = useState(initialFormData);
 
@@ -199,6 +209,37 @@ export default function SaaSOnboardingPage() {
     setFormData((prev) => ({ ...prev, [fieldName]: newValues.join(", ") }));
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('logos')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
+      
+      if (data) {
+        setFormData(prev => ({ ...prev, logo_url: data.publicUrl }));
+      }
+    } catch (error: any) {
+       console.error("Error uploading logo:", error);
+       alert("Error uploading logo: " + error.message);
+    } finally {
+       setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
@@ -208,6 +249,7 @@ export default function SaaSOnboardingPage() {
 
       const payload = {
           name: formData.name,
+          logo_url: formData.logo_url,
           website: formData.website,
           commission_rate: parseFloat(formData.commission_rate) || 0,
           short_description: formData.short_description,
@@ -366,6 +408,25 @@ export default function SaaSOnboardingPage() {
                       );
                     })}
                   </div>
+                ) : step.type === "image" ? (
+                  <div className="flex flex-col items-center gap-4">
+                     <div className="relative h-32 w-32 rounded-full overflow-hidden bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center group hover:border-indigo-500 transition-colors">
+                        {formData.logo_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={formData.logo_url} alt="Logo Preview" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="text-zinc-500 text-center p-2">
+                             {isUploading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : "No Logo"}
+                          </div>
+                        )}
+                        
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity text-xs font-medium">
+                           {isUploading ? "Uploading..." : "Upload"}
+                           <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={isUploading} />
+                        </label>
+                     </div>
+                     {formData.logo_url && <p className="text-sm text-green-500 flex items-center"><Check className="w-4 h-4 mr-1"/> Uploaded Successfully</p>}
+                  </div>
                 ) : (
                   <input
                     autoFocus
@@ -391,7 +452,7 @@ export default function SaaSOnboardingPage() {
 
                 <Button
                   onClick={handleNext}
-                  disabled={isSubmitting || (step.required && !formData[step.field])}
+                  disabled={isSubmitting || isUploading || (step.required && !formData[step.field])}
                   className={cn(
                     "text-lg h-14 px-8 rounded-full font-semibold transition-all hover:scale-105",
                     !step.required && !formData[step.field] && currentStep !== STEPS.length - 1
