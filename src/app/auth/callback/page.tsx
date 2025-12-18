@@ -36,17 +36,18 @@ function AuthCallbackContent() {
             // NEW USER detected
             if (authMode === 'login') {
                 // REJECT: This account doesn't have a profile yet and tried to LOGIN
-                console.log("Unauthorized login detected. Initializing self-cleanup...");
+                console.log("Unauthorized login detected. Running cleanup...");
                 
+                // Small delay to ensure DB session is synchronized
+                await new Promise(resolve => setTimeout(resolve, 500));
+
                 // 1. Delete the accidental auth record via RPC
-                const { data: cleanupResult, error: rpcError } = await supabase.rpc('delete_current_unauthorized_user');
+                const { data: status, error: rpcError } = await supabase.rpc('delete_current_unauthorized_user');
                 
                 if (rpcError) {
                     console.error("Cleanup RPC Error:", rpcError);
-                } else if (cleanupResult) {
-                    console.log("Successfully deleted unauthorized auth record.");
                 } else {
-                    console.warn("Cleanup executed but nothing was deleted (user might have a profile or rpc failed silently).");
+                    console.log("Cleanup Status:", status);
                 }
                 
                 // 2. Clear session and redirect with error
