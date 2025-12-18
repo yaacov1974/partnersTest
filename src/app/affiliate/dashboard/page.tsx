@@ -23,20 +23,35 @@ export default function AffiliateDashboardPage() {
       }
 
       try {
-        const { data, error } = await supabase
+        // Essential Guard: Verify the profile exists
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (!profile) {
+          await supabase.auth.signOut();
+          router.push("/affiliate/login?error=account_not_found");
+          return;
+        }
+
+        // Check for onboarding completion
+        const { data: partner, error } = await supabase
           .from("partners")
           .select("onboarding_completed")
           .eq("profile_id", user.id)
-          .single();
+          .maybeSingle();
 
-        if (error || !data?.onboarding_completed) {
+        if (error || !partner?.onboarding_completed) {
           router.push("/affiliate/onboarding");
         } else {
           setCheckingOnboarding(false);
         }
       } catch (error) {
-        console.error("Error checking onboarding status:", error);
-        router.push("/affiliate/onboarding");
+        console.error("Error checking account status:", error);
+        await supabase.auth.signOut();
+        router.push("/affiliate/login");
       }
     };
 

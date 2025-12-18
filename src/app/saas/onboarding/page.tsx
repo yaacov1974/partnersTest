@@ -270,20 +270,11 @@ export default function SaaSOnboardingPage() {
           onboarding_completed: true,
       };
 
-      // Ensure Profile Exists
+      // Verify Profile Exists (Safety Check)
       const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
       
       if (!profile) {
-          // Create missing profile
-           const { error: profileError } = await supabase.from('profiles').insert({
-               id: user.id,
-               email: user.email!,
-               role: 'saas',
-               marketing_consent: false 
-           });
-           if (profileError) {
-             throw new Error(`Failed to create profile: ${profileError.message}`);
-           }
+          throw new Error("Account profile not found. Please sign out and sign up again.");
       }
 
       // Check if saas_companies record exists
