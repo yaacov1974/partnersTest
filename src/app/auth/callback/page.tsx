@@ -21,7 +21,12 @@ function AuthCallbackContent() {
       }
 
       if (session) {
-        const targetType = next.startsWith('/affiliate') ? 'affiliate' : 'saas';
+        // Robustly determine the target type (check URL preference, then user metadata)
+        const metadataRole = session.user.user_metadata?.role;
+        const urlType = next.toLowerCase().includes('/affiliate') ? 'affiliate' : 
+                        next.toLowerCase().includes('/saas') ? 'saas' : null;
+        
+        const targetType = urlType || metadataRole || 'saas';
         const loginPage = `/${targetType}/login`;
         
         // 1. Check for profile

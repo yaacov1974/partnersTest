@@ -23,14 +23,33 @@ export default function SaaSDashboardPage() {
       }
 
       try {
-        // Check for onboarding completion
-        const { data: company, error } = await supabase
+        // 1. Get user profile to check role
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError || !profile) {
+          console.error("Profile not found:", profileError);
+          router.push("/saas/login");
+          return;
+        }
+
+        // 2. Redirect if role mismatch
+        if (profile.role === "affiliate") {
+          router.push("/affiliate/dashboard");
+          return;
+        }
+
+        // 3. Check for onboarding completion
+        const { data: company, error: companyError } = await supabase
           .from("saas_companies")
           .select("onboarding_completed")
           .eq("owner_id", user.id)
           .maybeSingle();
 
-        if (error || !company?.onboarding_completed) {
+        if (companyError || !company?.onboarding_completed) {
           router.push("/saas/onboarding");
         } else {
           setCheckingOnboarding(false);

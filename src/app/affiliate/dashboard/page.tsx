@@ -23,14 +23,33 @@ export default function AffiliateDashboardPage() {
       }
 
       try {
-        // Check for onboarding completion
-        const { data: partner, error } = await supabase
+        // 1. Get user profile to check role
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError || !profile) {
+          console.error("Profile not found:", profileError);
+          router.push("/affiliate/login");
+          return;
+        }
+
+        // 2. Redirect if role mismatch
+        if (profile.role === "saas") {
+          router.push("/saas/dashboard");
+          return;
+        }
+
+        // 3. Check for onboarding completion
+        const { data: partner, error: partnerError } = await supabase
           .from("partners")
           .select("onboarding_completed")
           .eq("profile_id", user.id)
           .maybeSingle();
 
-        if (error || !partner?.onboarding_completed) {
+        if (partnerError || !partner?.onboarding_completed) {
           router.push("/affiliate/onboarding");
         } else {
           setCheckingOnboarding(false);
