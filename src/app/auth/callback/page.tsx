@@ -53,29 +53,63 @@ function AuthCallbackContent() {
         if (!profile) {
             // NEW USER: Auto-create profile
             console.log("Creating new profile with role:", targetType);
+            console.log("User ID:", session.user.id);
+            console.log("User email:", session.user.email);
+            
             try {
-                // Create Profile
-                const { error: insertError } = await supabase.from('profiles').upsert({
-                    id: session.user.id,
-                    email: session.user.email!,
-                    role: targetType,
-                    marketing_consent: false
-                });
+                // Create Profile using INSERT (not upsert for better error messages)
+                const { data: profileData, error: insertError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: session.user.id,
+                        email: session.user.email!,
+                        role: targetType,
+                        marketing_consent: false
+                    })
+                    .select();
                 
-                if (insertError) throw insertError;
+                console.log("Profile insert result:", profileData, insertError);
+                
+                if (insertError) {
+                    console.error("PROFILE INSERT FAILED:", insertError);
+                    alert(`Profile creation failed: ${insertError.message}`);
+                    throw insertError;
+                }
+                
+                console.log("Profile created successfully!");
 
                 // Create Role-specific table entry
                 if (targetType === 'saas') {
-                    console.log("Creating saas_companies record");
-                    await supabase.from('saas_companies').upsert({ 
-                        owner_id: session.user.id, 
-                        name: 'My Company' 
-                    }, { onConflict: 'owner_id' });
+                    console.log("Creating saas_companies record for:", session.user.id);
+                    const { data: companyData, error: companyError } = await supabase
+                        .from('saas_companies')
+                        .insert({ 
+                            owner_id: session.user.id, 
+                            name: 'My Company' 
+                        })
+                        .select();
+                    
+                    console.log("Company insert result:", companyData, companyError);
+                    
+                    if (companyError) {
+                        console.error("COMPANY INSERT FAILED:", companyError);
+                        alert(`Company creation failed: ${companyError.message}`);
+                    }
                 } else {
-                    console.log("Creating partners record");
-                    await supabase.from('partners').upsert({ 
-                        profile_id: session.user.id 
-                    }, { onConflict: 'profile_id' });
+                    console.log("Creating partners record for:", session.user.id);
+                    const { data: partnerData, error: partnerError } = await supabase
+                        .from('partners')
+                        .insert({ 
+                            profile_id: session.user.id 
+                        })
+                        .select();
+                    
+                    console.log("Partner insert result:", partnerData, partnerError);
+                    
+                    if (partnerError) {
+                        console.error("PARTNER INSERT FAILED:", partnerError);
+                        alert(`Partner creation failed: ${partnerError.message}`);
+                    }
                 }
                 console.log("Profile creation complete");
             } catch (err: any) {
