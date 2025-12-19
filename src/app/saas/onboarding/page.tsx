@@ -292,13 +292,6 @@ export default function SaaSOnboardingPage() {
           onboarding_completed: true,
       };
 
-      // Verify Profile Exists (Safety Check)
-      const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
-      
-      if (!profile) {
-          throw new Error("Account profile not found. Please sign out and sign up again.");
-      }
-
       // Check if saas_companies record exists
       const { data: existingCompany } = await supabase
         .from('saas_companies')

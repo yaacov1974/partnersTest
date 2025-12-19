@@ -208,13 +208,6 @@ export default function AffiliateOnboardingPage() {
           onboarding_completed: true,
       };
 
-      // Verify Profile Exists (Safety Check)
-      const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
-      
-      if (!profile) {
-          throw new Error("Account profile not found. Please sign out and sign up again.");
-      }
-
       // Check if partner record exists
       const { data: existingPartner } = await supabase
         .from('partners')

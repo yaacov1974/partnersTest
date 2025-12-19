@@ -105,42 +105,50 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         }
 
         if (authData.user) {
-          // Profile creation is now handled by a Database Trigger (see supabase/fix_signup_trigger.sql)
-          // This avoids race conditions and RLS issues with pure client-side insertion.
+          console.log("User created, now creating profile directly");
           
-          if (isMockMode) {
-             console.log("Mock Mode: Trigger would fire here.");
-          }
-
-          // Wait for the trigger to complete profile creation
-          let profileCreated = false;
-          let createdProfile = null;
-          for (let i = 0; i < 10; i++) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('id, role')
-              .eq('id', authData.user.id)
-              .maybeSingle();
+          // Create profile directly (don't rely on trigger)
+          try {
+            const { error: profileError } = await supabase.from('profiles').insert({
+              id: authData.user.id,
+              email: authData.user.email!,
+              role: type,
+              marketing_consent: marketingConsent
+            });
             
-            if (profile) {
-              profileCreated = true;
-              createdProfile = profile;
-              console.log("Profile created with role:", profile.role);
-              break;
+            if (profileError) {
+              console.error("Profile creation error:", profileError);
+              throw new Error(`Failed to create profile: ${profileError.message}`);
             }
-          }
+            
+            console.log("Profile created successfully");
 
-          if (!profileCreated) {
-            setError("Account creation is taking longer than expected. Please try logging in.");
-            setLoading(false);
-            return;
-          }
-
-          // Verify the role matches what we expect
-          if (createdProfile && createdProfile.role !== type) {
-            console.error(`Role mismatch! Expected ${type} but got ${createdProfile.role}`);
-            setError(`Account was created with wrong role. Expected ${type} but got ${createdProfile.role}. Please contact support.`);
+            // Create role-specific record
+            if (type === 'saas') {
+              const { error: companyError } = await supabase.from('saas_companies').insert({
+                owner_id: authData.user.id,
+                name: 'My Company'
+              });
+              
+              if (companyError) {
+                console.error("Company creation error:", companyError);
+                throw new Error(`Failed to create company: ${companyError.message}`);
+              }
+              console.log("SaaS company created");
+            } else {
+              const { error: partnerError } = await supabase.from('partners').insert({
+                profile_id: authData.user.id
+              });
+              
+              if (partnerError) {
+                console.error("Partner creation error:", partnerError);
+                throw new Error(`Failed to create partner: ${partnerError.message}`);
+              }
+              console.log("Partner record created");
+            }
+          } catch (err: any) {
+            console.error("Setup error:", err);
+            setError(err.message || "Failed to complete account setup");
             setLoading(false);
             return;
           }
