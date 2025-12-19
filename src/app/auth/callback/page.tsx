@@ -1,5 +1,6 @@
 'use client';
 
+// Force deployment - 2024-12-19T14:59
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
