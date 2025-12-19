@@ -123,6 +123,9 @@ export function AuthForm({ type, mode }: AuthFormProps) {
             
             console.log("Profile created successfully");
 
+            // Small delay to ensure profile is committed
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             // Create role-specific record
             if (type === 'saas') {
               const { error: companyError } = await supabase.from('saas_companies').insert({
