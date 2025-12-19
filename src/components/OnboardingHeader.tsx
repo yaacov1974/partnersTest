@@ -10,8 +10,7 @@ export function OnboardingHeader() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.refresh();
-    router.push("/");
+    window.location.href = "/";
   };
 
   return (

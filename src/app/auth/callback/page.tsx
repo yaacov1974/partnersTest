@@ -75,8 +75,10 @@ function AuthCallbackContent() {
             }
         }
 
-        // REDIRECT TO DASHBOARD
-        router.push(next);
+        // SUCCESS: Final Redirection
+        // Use window.location.href for a full refresh to ensure AuthContext/Layouts 
+        // immediately recognize the new session and profile.
+        window.location.href = next;
       } else {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_IN' && session) {

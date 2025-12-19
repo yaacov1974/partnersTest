@@ -99,7 +99,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           }
         }
 
-        router.push(`/${type}/onboarding`);
+        window.location.href = `/${type}/onboarding`;
       } else {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({
           email,
@@ -126,7 +126,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           }
         }
 
-        router.push(`/${type}/dashboard`);
+        window.location.href = `/${type}/dashboard`;
       }
     } catch (err: any) {
       setError(err.message);
