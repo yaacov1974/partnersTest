@@ -38,16 +38,6 @@ export function AuthForm({ type, mode }: AuthFormProps) {
     }
   }, [searchParams]);
 
-  // NEW: Redirect if already logged in
-  const { user, loading: authLoading, session } = useAuth();
-  useEffect(() => {
-    if (!authLoading && user && !error) { // Only redirect if there's no pending error to show
-        const userRole = session?.user?.user_metadata?.role || "saas";
-        // Only redirect if we are not already on the error path
-        window.location.href = `/${userRole}/dashboard`;
-    }
-  }, [user, authLoading, session, error]);
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -107,6 +97,28 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           
           if (isMockMode) {
              console.log("Mock Mode: Trigger would fire here.");
+          }
+
+          // Wait for the trigger to complete profile creation
+          let profileCreated = false;
+          for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('id', authData.user.id)
+              .maybeSingle();
+            
+            if (profile) {
+              profileCreated = true;
+              break;
+            }
+          }
+
+          if (!profileCreated) {
+            setError("Account creation is taking longer than expected. Please try logging in.");
+            setLoading(false);
+            return;
           }
         }
 

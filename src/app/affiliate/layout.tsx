@@ -45,14 +45,16 @@ export default function AffiliateLayout({
           .from('partners')
           .select('country')
           .eq('profile_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
             console.error("Error checking onboarding:", error);
+            setChecking(false);
+            return;
         }
 
-        // If country is null, it means they haven't completed onboarding (since we added it as required)
-        if (data && !data.country) {
+        // If no partner record or country is null, they need onboarding
+        if (!data || !data.country) {
           router.replace('/affiliate/onboarding');
         } else {
              setChecking(false);

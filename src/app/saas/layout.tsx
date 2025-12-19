@@ -45,15 +45,16 @@ export default function SaaSLayout({
           .from('saas_companies')
           .select('website')
           .eq('owner_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
             console.error("Error checking onboarding:", error);
-            // safe to fail open or closed? closed is safer.
+            setChecking(false);
+            return;
         }
 
-        // If website is null, it means they haven't completed onboarding
-        if (data && !data.website) {
+        // If no company record or website is null, they need onboarding
+        if (!data || !data.website) {
           router.replace('/saas/onboarding');
         } else {
              setChecking(false);
