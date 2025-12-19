@@ -75,6 +75,9 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         console.log("Type:", type);
         console.log("Email:", email);
         console.log("Metadata to be sent:", { role: type, marketing_consent: marketingConsent });
+        
+        // TEMPORARY DEBUG - Remove after testing
+        alert(`Signing up as: ${type}`);
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
