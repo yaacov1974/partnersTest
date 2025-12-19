@@ -21,12 +21,19 @@ function AuthCallbackContent() {
       }
 
       if (session) {
+        console.log("=== Auth Callback Debug ===");
+        console.log("Next URL:", next);
+        console.log("User metadata:", session.user.user_metadata);
+        
         // Robustly determine the target type (check URL preference, then user metadata)
         const metadataRole = session.user.user_metadata?.role;
         const urlType = next.toLowerCase().includes('/affiliate') ? 'affiliate' : 
                         next.toLowerCase().includes('/saas') ? 'saas' : null;
         
-        const targetType = urlType || metadataRole || 'saas';
+        // Prioritize metadata role over URL
+        const targetType = metadataRole || urlType || 'saas';
+        console.log("Detected targetType:", targetType, "(from metadata:", metadataRole, ", from URL:", urlType, ")");
+        
         const loginPage = `/${targetType}/login`;
         
         // 1. Check for profile
@@ -36,8 +43,11 @@ function AuthCallbackContent() {
             .eq('id', session.user.id)
             .maybeSingle();
 
+        console.log("Existing profile:", profile);
+
         if (!profile) {
             // NEW USER: Auto-create profile
+            console.log("Creating new profile with role:", targetType);
             try {
                 // Create Profile
                 const { error: insertError } = await supabase.from('profiles').upsert({
@@ -51,15 +61,18 @@ function AuthCallbackContent() {
 
                 // Create Role-specific table entry
                 if (targetType === 'saas') {
+                    console.log("Creating saas_companies record");
                     await supabase.from('saas_companies').upsert({ 
                         owner_id: session.user.id, 
                         name: 'My Company' 
                     }, { onConflict: 'owner_id' });
                 } else {
+                    console.log("Creating partners record");
                     await supabase.from('partners').upsert({ 
                         profile_id: session.user.id 
                     }, { onConflict: 'profile_id' });
                 }
+                console.log("Profile creation complete");
             } catch (err: any) {
                 console.error("Auto-Signup Error:", err);
                 await supabase.auth.signOut();
@@ -68,7 +81,9 @@ function AuthCallbackContent() {
             }
         } else {
             // EXISTING USER: Role validation
+            console.log("Existing user - validating role. Profile role:", profile.role, "Expected:", targetType);
             if (profile.role !== targetType) {
+                console.error("Role mismatch!");
                 await supabase.auth.signOut();
                 window.location.href = `${loginPage}?error=${encodeURIComponent(`Role mismatch: Registered as ${profile.role}`)}`;
                 return;
@@ -76,6 +91,7 @@ function AuthCallbackContent() {
         }
 
         // SUCCESS: Final Redirection
+        console.log("Redirecting to:", next);
         // Use window.location.href for a full refresh to ensure AuthContext/Layouts 
         // immediately recognize the new session and profile.
         window.location.href = next;
