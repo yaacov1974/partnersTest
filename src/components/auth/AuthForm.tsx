@@ -101,16 +101,19 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
           // Wait for the trigger to complete profile creation
           let profileCreated = false;
+          let createdProfile = null;
           for (let i = 0; i < 10; i++) {
             await new Promise(resolve => setTimeout(resolve, 300));
             const { data: profile } = await supabase
               .from('profiles')
-              .select('id')
+              .select('id, role')
               .eq('id', authData.user.id)
               .maybeSingle();
             
             if (profile) {
               profileCreated = true;
+              createdProfile = profile;
+              console.log("Profile created with role:", profile.role);
               break;
             }
           }
@@ -120,8 +123,17 @@ export function AuthForm({ type, mode }: AuthFormProps) {
             setLoading(false);
             return;
           }
+
+          // Verify the role matches what we expect
+          if (createdProfile && createdProfile.role !== type) {
+            console.error(`Role mismatch! Expected ${type} but got ${createdProfile.role}`);
+            setError(`Account was created with wrong role. Expected ${type} but got ${createdProfile.role}. Please contact support.`);
+            setLoading(false);
+            return;
+          }
         }
 
+        console.log(`Redirecting to /${type}/onboarding`);
         window.location.href = `/${type}/onboarding`;
       } else {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({

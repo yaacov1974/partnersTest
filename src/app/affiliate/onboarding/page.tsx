@@ -134,6 +134,28 @@ export default function AffiliateOnboardingPage() {
     }
   }, [user, loading, router]);
 
+  // Verify user has the correct role for this onboarding
+  useEffect(() => {
+    const checkRole = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (profile && profile.role === 'saas') {
+        console.log("User is SaaS, redirecting to SaaS onboarding");
+        router.push('/saas/onboarding');
+      }
+    };
+    
+    if (!loading && user) {
+      checkRole();
+    }
+  }, [user, loading, router]);
+
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
       setCurrentStep((prev) => prev + 1);

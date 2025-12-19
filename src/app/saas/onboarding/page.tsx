@@ -170,6 +170,28 @@ export default function SaaSOnboardingPage() {
     }
   }, [user, loading, router]);
 
+  // Verify user has the correct role for this onboarding
+  useEffect(() => {
+    const checkRole = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (profile && profile.role === 'affiliate') {
+        console.log("User is Affiliate, redirecting to Affiliate onboarding");
+        router.push('/affiliate/onboarding');
+      }
+    };
+    
+    if (!loading && user) {
+      checkRole();
+    }
+  }, [user, loading, router]);
+
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
       setCurrentStep((prev) => prev + 1);
