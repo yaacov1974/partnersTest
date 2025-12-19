@@ -28,11 +28,16 @@ export default function SaaSDashboardPage() {
           .from("profiles")
           .select("role")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !profile) {
-          console.error("Profile not found:", profileError);
-          router.push("/saas/login");
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          return;
+        }
+
+        if (!profile) {
+          console.warn("Profile not found for authenticated user. Redirecting to login.");
+          router.push("/saas/login?error=account_not_found");
           return;
         }
 
@@ -55,9 +60,7 @@ export default function SaaSDashboardPage() {
           setCheckingOnboarding(false);
         }
       } catch (error) {
-        console.error("Error checking account status:", error);
-        await supabase.auth.signOut();
-        router.push("/saas/login");
+        console.error("Dashboard guard error:", error);
       }
     };
 

@@ -28,11 +28,16 @@ export default function AffiliateDashboardPage() {
           .from("profiles")
           .select("role")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !profile) {
-          console.error("Profile not found:", profileError);
-          router.push("/affiliate/login");
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          return;
+        }
+
+        if (!profile) {
+          console.warn("Profile not found for authenticated user. Redirecting to login.");
+          router.push("/affiliate/login?error=account_not_found");
           return;
         }
 
@@ -55,9 +60,7 @@ export default function AffiliateDashboardPage() {
           setCheckingOnboarding(false);
         }
       } catch (error) {
-        console.error("Error checking account status:", error);
-        await supabase.auth.signOut();
-        router.push("/affiliate/login");
+        console.error("Dashboard guard error:", error);
       }
     };
 

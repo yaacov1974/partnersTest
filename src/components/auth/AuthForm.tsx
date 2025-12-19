@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface AuthFormProps {
   type: "saas" | "affiliate";
@@ -36,6 +37,16 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         }
     }
   }, [searchParams]);
+
+  // NEW: Redirect if already logged in
+  const { user, loading: authLoading, session } = useAuth();
+  useEffect(() => {
+    if (!authLoading && user && !error) { // Only redirect if there's no pending error to show
+        const userRole = session?.user?.user_metadata?.role || "saas";
+        // Only redirect if we are not already on the error path
+        window.location.href = `/${userRole}/dashboard`;
+    }
+  }, [user, authLoading, session, error]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -26,13 +27,17 @@ export function Hero() {
         </p>
 
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button size="lg" className="h-12 min-w-[180px] bg-primary text-white hover:bg-primary/90 text-base">
-            For SaaS Brands
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-          <Button size="lg" variant="outline" className="h-12 min-w-[180px] border-white/10 bg-transparent text-white hover:bg-white/5 text-base">
-            For Affiliates
-          </Button>
+          <Link href="/saas/signup">
+            <Button size="lg" className="h-12 min-w-[180px] bg-primary text-white hover:bg-primary/90 text-base">
+              For SaaS Brands
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href="/affiliate/signup">
+            <Button size="lg" variant="outline" className="h-12 min-w-[180px] border-white/10 bg-transparent text-white hover:bg-white/5 text-base">
+              For Affiliates
+            </Button>
+          </Link>
         </div>
 
         <div className="pt-12 space-y-4">
