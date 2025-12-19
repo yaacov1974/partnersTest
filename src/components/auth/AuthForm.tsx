@@ -106,28 +106,42 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
         if (authData.user) {
           console.log("User created, now creating profile directly");
+          console.log("User ID:", authData.user.id);
+          console.log("User email:", authData.user.email);
           
           // Create profile directly (don't rely on trigger)
           try {
-            const { error: profileError } = await supabase.from('profiles').insert({
+            const { data: profileData, error: profileError } = await supabase.from('profiles').insert({
               id: authData.user.id,
               email: authData.user.email!,
               role: type,
               marketing_consent: marketingConsent
-            });
+            }).select();
             
             if (profileError) {
               console.error("Profile creation error:", profileError);
               throw new Error(`Failed to create profile: ${profileError.message}`);
             }
             
-            console.log("Profile created successfully");
+            console.log("Profile created successfully:", profileData);
 
-            // Small delay to ensure profile is committed
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Verify the profile exists
+            const { data: verifyProfile, error: verifyError } = await supabase
+              .from('profiles')
+              .select('id, role')
+              .eq('id', authData.user.id)
+              .single();
+            
+            if (verifyError || !verifyProfile) {
+              console.error("Profile verification failed:", verifyError);
+              throw new Error("Profile was not created properly. Please try again.");
+            }
+            
+            console.log("Profile verified:", verifyProfile);
 
             // Create role-specific record
             if (type === 'saas') {
+              console.log("Creating saas_companies record for owner_id:", authData.user.id);
               const { error: companyError } = await supabase.from('saas_companies').insert({
                 owner_id: authData.user.id,
                 name: 'My Company'
@@ -139,6 +153,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
               }
               console.log("SaaS company created");
             } else {
+              console.log("Creating partners record for profile_id:", authData.user.id);
               const { error: partnerError } = await supabase.from('partners').insert({
                 profile_id: authData.user.id
               });
