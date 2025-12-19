@@ -71,6 +71,11 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           return;
         }
 
+        console.log("=== Starting Signup ===");
+        console.log("Type:", type);
+        console.log("Email:", email);
+        console.log("Metadata to be sent:", { role: type, marketing_consent: marketingConsent });
+
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
@@ -82,10 +87,15 @@ export function AuthForm({ type, mode }: AuthFormProps) {
             },
           },
         });
+        
+        console.log("Signup response:", authData);
+        console.log("Signup error:", authError);
+        
         if (authError) throw authError;
 
         if (authData.user && !authData.session) {
            // User signed up but needs email verification
+           console.log("Email verification required - showing email sent message");
            setShowEmailSent(true);
            setLoading(false);
            return;

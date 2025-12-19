@@ -43,7 +43,12 @@ function AuthCallbackContent() {
             .eq('id', session.user.id)
             .maybeSingle();
 
-        console.log("Existing profile:", profile);
+        if (profile) {
+            console.log("FOUND EXISTING PROFILE:", profile);
+            console.log("Profile role:", profile.role, "Expected targetType:", targetType);
+        } else {
+            console.log("NO EXISTING PROFILE - will create new one");
+        }
 
         if (!profile) {
             // NEW USER: Auto-create profile
