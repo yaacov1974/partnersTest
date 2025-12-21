@@ -241,14 +241,14 @@ export function AuthForm({ type, mode, unified }: AuthFormProps) {
   const handleGoogleLogin = async () => {
     try {
       const redirectUrl = unified 
-        ? `${window.location.origin}/auth/callback`
+        ? `${window.location.origin}/auth/callback?next=/onboarding/role-selection`
         : `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: unified 
-            ? `${window.location.origin}/auth/callback` 
+            ? `${window.location.origin}/auth/callback?next=/onboarding/role-selection` 
             : `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`,
           queryParams: {
             access_type: 'offline',
