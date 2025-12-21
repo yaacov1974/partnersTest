@@ -23,13 +23,18 @@ export default function RoleSelectionPage() {
     if (user) {
       // Check if user already has a profile/role
       const checkProfile = async () => {
+        console.log("Checking for existing profile for user:", user.id);
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single();
 
+        console.log("Existing profile found:", profile);
+
         if (profile?.role) {
+          console.log("Redirecting to dashboard because role exists:", profile.role);
+          // alert(`You already have a role (${profile.role}). Redirecting...`);
           router.push(`/${profile.role}/dashboard`);
         }
       };

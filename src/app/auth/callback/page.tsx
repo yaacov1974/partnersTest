@@ -15,7 +15,7 @@ function AuthCallbackContent() {
   useEffect(() => {
     const handleCallback = async () => {
       // IMMEDIATE DEBUG
-      alert("Callback page loaded! Next URL: " + next);
+      // alert("Callback page loaded! Next URL: " + next);
       console.log("=== CALLBACK STARTED ===");
       
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -39,10 +39,20 @@ function AuthCallbackContent() {
         const targetType = metadataRole || urlType || 'saas';
         console.log("Detected targetType:", targetType, "(from metadata:", metadataRole, ", from URL:", urlType, ")");
 
-        // CHECK FOR UNIFIED FLOW
-        if (next.includes('role-selection')) {
-            console.log("Unified flow detected - skipping auto-profile creation");
-            window.location.href = next;
+        // CHECK FOR UNIFIED FLOW (URL Param OR LocalStorage)
+        const storedFlow = typeof window !== 'undefined' ? localStorage.getItem('auth_flow') : null;
+        if (next.includes('role-selection') || storedFlow === 'unified') {
+            console.log("Unified flow detected (via " + (next.includes('role-selection') ? "URL" : "LocalStorage") + ") - skipping auto-profile creation");
+            
+            // Clear storage
+            localStorage.removeItem('auth_flow');
+            
+            // Redirect to role selection if not already there
+            if (!next.includes('role-selection')) {
+                window.location.href = '/onboarding/role-selection';
+            } else {
+                window.location.href = next;
+            }
             return;
         }
         

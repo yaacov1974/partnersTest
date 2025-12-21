@@ -240,6 +240,12 @@ export function AuthForm({ type, mode, unified }: AuthFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
+      if (unified) {
+        localStorage.setItem('auth_flow', 'unified');
+      } else {
+        localStorage.removeItem('auth_flow');
+      }
+
       const redirectUrl = unified 
         ? `${window.location.origin}/auth/callback?next=/onboarding/role-selection`
         : `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`;
