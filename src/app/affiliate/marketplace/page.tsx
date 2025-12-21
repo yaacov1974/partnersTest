@@ -168,9 +168,9 @@ export default function AffiliateMarketplacePage() {
                   <Card key={program.id} className="border-indigo-500/20 bg-indigo-500/5 backdrop-blur">
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                        <div className="h-12 w-12 rounded-lg bg-zinc-800 overflow-hidden">
+                        <div className="h-20 w-20 rounded-lg bg-zinc-800/50 p-2 overflow-hidden flex items-center justify-center border border-white/5">
                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                           {program.logo_url && <img src={program.logo_url} alt={program.name} className="h-full w-full object-cover" />}
+                           {program.logo_url && <img src={program.logo_url} alt={program.name} className="h-full w-full object-contain" />}
                         </div>
                         <span className="rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-medium text-green-400 border border-green-500/20 flex items-center gap-1">
                           <Check className="w-3 h-3" /> Connected
@@ -208,12 +208,12 @@ export default function AffiliateMarketplacePage() {
                   <Card key={program.id} className="border-white/10 bg-white/5 backdrop-blur transition-all hover:bg-white/10 hover:border-indigo-500/50">
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                         <div className="h-12 w-12 rounded-lg bg-zinc-800 overflow-hidden flex items-center justify-center">
+                         <div className="h-20 w-20 rounded-lg bg-zinc-800/50 p-2 overflow-hidden flex items-center justify-center border border-white/5">
                            {/* eslint-disable-next-line @next/next/no-img-element */}
                            {program.logo_url ? (
-                               <img src={program.logo_url} alt={program.name} className="h-full w-full object-cover" /> 
+                               <img src={program.logo_url} alt={program.name} className="h-full w-full object-contain" /> 
                            ) : (
-                               <span className="text-xs text-zinc-500">{program.name.substring(0,2)}</span>
+                               <span className="text-xl font-bold text-zinc-600">{program.name.substring(0,2)}</span>
                            )}
                         </div>
                         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary border border-primary/20">
