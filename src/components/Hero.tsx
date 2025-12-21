@@ -27,15 +27,10 @@ export function Hero() {
         </p>
 
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link href="/saas/signup">
+          <Link href="/signup">
             <Button size="lg" className="h-12 min-w-[180px] bg-primary text-white hover:bg-primary/90 text-base">
-              For SaaS Brands
+              Get Started
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href="/affiliate/signup">
-            <Button size="lg" variant="outline" className="h-12 min-w-[180px] border-white/10 bg-transparent text-white hover:bg-white/5 text-base">
-              For Affiliates
             </Button>
           </Link>
         </div>

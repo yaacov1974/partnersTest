@@ -56,14 +56,9 @@ export function Navbar() {
               </Button>
             </>
           ) : (
-            <>
-              <Button asChild variant="outline" className="border-primary/50 bg-transparent text-white hover:bg-primary/10 hover:border-primary text-xs sm:text-sm whitespace-nowrap">
-                <Link href="/affiliate/login">Affiliate Sign In</Link>
-              </Button>
-              <Button asChild variant="outline" className="border-primary/50 bg-transparent text-white hover:bg-primary/10 hover:border-primary text-xs sm:text-sm whitespace-nowrap">
-                <Link href="/saas/login">SaaS Sign In</Link>
-              </Button>
-            </>
+            <Button asChild variant="outline" className="border-primary/50 bg-transparent text-white hover:bg-primary/10 hover:border-primary text-xs sm:text-sm whitespace-nowrap">
+              <Link href="/login">Login</Link>
+            </Button>
           )}
         </div>
       </div>

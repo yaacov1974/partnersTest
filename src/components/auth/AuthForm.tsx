@@ -13,11 +13,12 @@ import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 interface AuthFormProps {
-  type: "saas" | "affiliate";
+  type?: "saas" | "affiliate";
   mode: "login" | "signup";
+  unified?: boolean;
 }
 
-export function AuthForm({ type, mode }: AuthFormProps) {
+export function AuthForm({ type, mode, unified }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
@@ -52,7 +53,11 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         // Simulate a delay
         await new Promise(resolve => setTimeout(resolve, 500));
         // Redirect to dashboard
-        router.push(`/${type}/dashboard`);
+        if (unified) {
+            router.push('/onboarding/role-selection');
+        } else {
+            router.push(`/${type}/dashboard`);
+        }
         return;
       }
 
@@ -72,20 +77,20 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         }
 
         console.log("=== Starting Signup ===");
-        console.log("Type:", type);
+        console.log("Type:", type || (unified ? "Unified" : "Unknown"));
         console.log("Email:", email);
-        console.log("Metadata to be sent:", { role: type, marketing_consent: marketingConsent });
+        console.log("Metadata to be sent:", { role: unified ? 'pending' : type, marketing_consent: marketingConsent });
         
         // TEMPORARY DEBUG - Remove after testing
-        alert(`Signing up as: ${type}`);
+        // alert(`Signing up as: ${type}`);
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/${type}/onboarding`,
+            emailRedirectTo: unified ? `${window.location.origin}/auth/callback?next=/onboarding/role-selection` : `${window.location.origin}/auth/callback?next=/${type}/onboarding`,
             data: {
-              role: type,
+              role: unified ? undefined : type,
               marketing_consent: marketingConsent,
             },
           },
@@ -104,7 +109,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
            return;
         }
 
-        if (authData.user) {
+        if (authData.user && !unified) {
           console.log("User created, now creating profile directly");
           console.log("User ID:", authData.user.id);
           console.log("User email:", authData.user.email);
@@ -172,8 +177,13 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           }
         }
 
-        console.log(`Redirecting to /${type}/onboarding`);
-        window.location.href = `/${type}/onboarding`;
+        if (unified) {
+            console.log("Unified signup - redirecting to role selection");
+            window.location.href = "/onboarding/role-selection";
+        } else {
+            console.log(`Redirecting to /${type}/onboarding`);
+            window.location.href = `/${type}/onboarding`;
+        }
       } else {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({
           email,
@@ -200,7 +210,26 @@ export function AuthForm({ type, mode }: AuthFormProps) {
           }
         }
 
-        window.location.href = `/${type}/dashboard`;
+        if (unified) {
+            // Check for profile and redirect based on role
+             if (signInData.user) {
+                const { data: profile, error: profileError } = await supabase
+                  .from('profiles')
+                  .select('role')
+                  .eq('id', signInData.user.id)
+                  .single();
+      
+                if (profileError || !profile || !profile.role) {
+                  // No profile or role -> Go to role selection
+                  window.location.href = "/onboarding/role-selection";
+                } else {
+                  // Has role -> Go to dashboard
+                  window.location.href = `/${profile.role}/dashboard`;
+                }
+             }
+        } else {
+            window.location.href = `/${type}/dashboard`;
+        }
       }
     } catch (err: any) {
       setError(err.message);
@@ -211,12 +240,16 @@ export function AuthForm({ type, mode }: AuthFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`;
+      const redirectUrl = unified 
+        ? `${window.location.origin}/auth/callback`
+        : `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: unified 
+            ? `${window.location.origin}/auth/callback` 
+            : `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/${type}/dashboard`)}`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -230,9 +263,11 @@ export function AuthForm({ type, mode }: AuthFormProps) {
   };
 
   const title = mode === "login" ? "Welcome Back" : "Create Account";
-  const description = type === "saas" 
-    ? (mode === "login" ? "Sign in to manage your partnership program." : "Start your partnership journey today.")
-    : (mode === "login" ? "Sign in to access your affiliate dashboard." : "Join the network and start earning.");
+  const description = unified
+    ? (mode === "login" ? "Sign in to your account" : "Create an account to get started")
+    : (type === "saas" 
+        ? (mode === "login" ? "Sign in to manage your partnership program." : "Start your partnership journey today.")
+        : (mode === "login" ? "Sign in to access your affiliate dashboard." : "Join the network and start earning."));
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const isMockMode = supabaseUrl.includes("placeholder");
@@ -259,7 +294,7 @@ export function AuthForm({ type, mode }: AuthFormProps) {
                 <Button 
                     variant="outline" 
                     className="border-zinc-800 bg-zinc-900/50 text-white hover:bg-zinc-800"
-                    onClick={() => router.push(`/${type}/login`)}
+                    onClick={() => router.push(unified ? '/login' : `/${type}/login`)}
                 >
                     Back to Sign In
                 </Button>
@@ -407,12 +442,12 @@ export function AuthForm({ type, mode }: AuthFormProps) {
         <CardFooter className="flex flex-col gap-2 justify-center">
           <p className="text-sm text-zinc-400">
             {mode === "login" ? "Don't have an account? " : "Already have an account? "}
-            <Link href={mode === "login" ? `/${type}/signup` : `/${type}/login`} className="text-primary hover:text-primary/80 hover:underline transition-colors">
+            <Link href={unified ? (mode === "login" ? "/signup" : "/login") : (mode === "login" ? `/${type}/signup` : `/${type}/login`)} className="text-primary hover:text-primary/80 hover:underline transition-colors">
               {mode === "login" ? "Sign up" : "Sign in"}
             </Link>
           </p>
           {mode === "login" && (
-            <Link href={`/${type}/forgot-password`} className="text-xs text-zinc-500 hover:text-zinc-400">
+            <Link href={unified ? "/forgot-password" : `/${type}/forgot-password`} className="text-xs text-zinc-500 hover:text-zinc-400">
               Forgot your password?
             </Link>
           )}
