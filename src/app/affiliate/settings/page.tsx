@@ -189,7 +189,7 @@ export default function AffiliateSettingsPage() {
                         initialImage={formData.avatar_url}
                         aspectRatio={1}
                         circularCrop={true}
-                        className="w-32 h-32"
+                        className="w-64 h-64"
                     />
                 </div>
 
