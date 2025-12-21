@@ -14,8 +14,6 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // IMMEDIATE DEBUG
-      // alert("Callback page loaded! Next URL: " + next);
       console.log("=== CALLBACK STARTED ===");
       
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();

@@ -33,8 +33,6 @@ export default function RoleSelectionPage() {
         console.log("Existing profile found:", profile);
 
         if (profile?.role) {
-          console.log("Redirecting to dashboard because role exists:", profile.role);
-          // alert(`You already have a role (${profile.role}). Redirecting...`);
           router.push(`/${profile.role}/dashboard`);
         }
       };

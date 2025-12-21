@@ -388,7 +388,7 @@ export function AuthForm({ type, mode, unified }: AuthFormProps) {
               </div>
             )}
 
-            <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-indigo-500/20 transition-all" disabled={loading}>
+            <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-indigo-500/20 transition-all cursor-pointer" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -423,7 +423,7 @@ export function AuthForm({ type, mode, unified }: AuthFormProps) {
             </div>
           </div>
 
-          <Button variant="outline" type="button" className="w-full border-zinc-800 bg-zinc-900/50 text-white hover:bg-zinc-800 hover:text-white transition-all" onClick={handleGoogleLogin}>
+          <Button variant="outline" type="button" className="w-full border-zinc-800 bg-zinc-900/50 text-white hover:bg-zinc-800 hover:text-white transition-all cursor-pointer" onClick={handleGoogleLogin}>
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

@@ -35,9 +35,6 @@ export function Navbar() {
               <span className="text-lg font-bold text-white">P</span>
             </span>
             <span className="text-xl font-bold tracking-tight text-white">Partnerz.ai</span>
-            <span className="text-xs text-red-500 bg-black/50 px-2 py-1 rounded border border-red-500">
-              Debug: Role={userRole || 'NONE'} | Path={pathname} | ID={user?.id?.slice(0,4)}
-            </span>
           </Link>
         </div>
         
