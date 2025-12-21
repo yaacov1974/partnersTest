@@ -36,7 +36,7 @@ function AuthCallbackContent() {
                         next.toLowerCase().includes('/saas') ? 'saas' : null;
         
         // Prioritize metadata role over URL
-        const targetType = metadataRole || urlType || 'saas';
+        const targetType = metadataRole || urlType; // Remove default 'saas'
         console.log("Detected targetType:", targetType, "(from metadata:", metadataRole, ", from URL:", urlType, ")");
 
         // CHECK FOR UNIFIED FLOW (URL Param OR LocalStorage)
@@ -56,7 +56,14 @@ function AuthCallbackContent() {
             return;
         }
         
-        const loginPage = `/${targetType}/login`;
+        const loginPage = targetType ? `/${targetType}/login` : '/login';
+
+        // If no target type is found (and no specific flow detected), default to role selection
+        if (!targetType) {
+             console.log("No specific role detected - defaulting to Unified Role Selection");
+             window.location.href = '/onboarding/role-selection';
+             return;
+        }
         
         // 1. Check for profile
         const { data: profile } = await supabase
