@@ -89,8 +89,12 @@ export function ImageUploadWithCrop({
         <div 
             className={cn(
                 "relative overflow-hidden bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center group hover:border-indigo-500 transition-colors cursor-pointer",
-                circularCrop ? "rounded-full h-32 w-32" : "rounded-md w-full max-w-[500px]",
-                previewUrl && "border-solid border-indigo-500"
+                circularCrop ? "rounded-full aspect-square" : "rounded-md w-full max-w-[500px]",
+                // Apply default sizing if no sizing props or classes are passed to dropzone
+                // If dropzoneClassName has sizing, this default is ignored (standard tailwind-merge behavior if used, but here simpler logic)
+                circularCrop && !dropzoneClassName?.includes('w-') && "w-32 h-32",
+                previewUrl && "border-solid border-indigo-500",
+                dropzoneClassName
             )}
             style={!circularCrop ? { aspectRatio: `${aspectRatio}` } : undefined}
             onClick={() => fileInputRef.current?.click()}

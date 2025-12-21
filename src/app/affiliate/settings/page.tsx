@@ -189,7 +189,12 @@ export default function AffiliateSettingsPage() {
                         initialImage={formData.avatar_url}
                         aspectRatio={1}
                         circularCrop={true}
-                        className="w-64 h-64"
+                        // We need to ensure these classes reach the dropzone. 
+                        // I will update the component to accept `dropzoneClassName` in the next step to be cleaner,
+                        // or relying on my previous edit's logic if I can make it work.
+                        // Wait, my previous edit to ImageUploadWithCrop was just a comment. 
+                        // I will make the real edit now.
+                        className="w-[300px] h-[300px]"
                     />
                 </div>
 
