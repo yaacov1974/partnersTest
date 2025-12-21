@@ -159,7 +159,7 @@ export default function SaaSMarketplacePage() {
                     <div className="h-40 w-full bg-zinc-900/50 flex items-center justify-center border-b border-indigo-500/10 relative group-hover:bg-zinc-900/70 transition-colors">
                        {/* eslint-disable-next-line @next/next/no-img-element */}
                        {partner.avatar_url ? (
-                           <img src={partner.avatar_url} alt={partner.full_name} className="h-full w-full object-cover" /> 
+                           <img src={partner.avatar_url} alt={partner.full_name} className="h-full w-full object-contain" /> 
                        ) : (
                            <span className="text-4xl font-bold text-zinc-700">{partner.full_name?.substring(0,2) || "??"}</span>
                        )}
@@ -205,7 +205,7 @@ export default function SaaSMarketplacePage() {
                     <div className="h-40 w-full bg-zinc-900/50 flex items-center justify-center border-b border-white/5 relative group-hover:bg-zinc-900/70 transition-colors">
                        {/* eslint-disable-next-line @next/next/no-img-element */}
                        {partner.avatar_url ? (
-                           <img src={partner.avatar_url} alt={partner.full_name} className="h-full w-full object-cover" /> 
+                           <img src={partner.avatar_url} alt={partner.full_name} className="h-full w-full object-contain" /> 
                        ) : (
                            <span className="text-4xl font-bold text-zinc-700">{partner.full_name?.substring(0,2) || "??"}</span>
                        )}
