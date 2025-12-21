@@ -12,9 +12,10 @@ import { cn } from "@/lib/utils";
 
 import { OnboardingHeader } from "@/components/OnboardingHeader";
 import { Footer } from "@/components/Footer";
+import { ImageUploadWithCrop } from "@/components/ui/image-upload-crop";
 
 // Field Types
-type FieldType = "text" | "url" | "number" | "email" | "textarea" | "chips" | "multi-chips";
+type FieldType = "text" | "url" | "number" | "email" | "textarea" | "chips" | "multi-chips" | "image";
 
 interface Step {
   field: keyof typeof initialFormData;
@@ -29,6 +30,7 @@ interface Step {
 const initialFormData = {
   // Account & Identity
   full_name: "",
+  avatar_url: "",
   phone: "",
   country: "",
   // Promotion Channel
@@ -51,6 +53,13 @@ const STEPS: Step[] = [
     description: "Or company name if you are an agency.",
     placeholder: "e.g. John Doe",
     required: true,
+  },
+  {
+    field: "avatar_url",
+    type: "image",
+    title: "Upload your profile picture",
+    description: "Or company logo if you are an agency.",
+    required: false,
   },
   {
     field: "phone",
@@ -125,6 +134,7 @@ export default function AffiliateOnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [formData, setFormData] = useState(initialFormData);
 
@@ -187,6 +197,37 @@ export default function AffiliateOnboardingPage() {
       return value;
   };
 
+  const handleImageCropped = async (blob: Blob) => {
+    if (!user) return;
+    setIsUploading(true);
+    
+    try {
+      const fileExt = "jpg";
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Ensure 'avatars' bucket exists manually if migration failed, but code assumes it works or bucket is public
+      const { error: uploadError } = await supabase.storage
+        .from('avatars') 
+        .upload(filePath, blob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      if (data) {
+        setFormData(prev => ({ ...prev, avatar_url: data.publicUrl }));
+      }
+    } catch (error: any) {
+        console.error("Error uploading avatar:", error);
+        alert("Error uploading avatar: " + error.message);
+    } finally {
+        setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
@@ -194,6 +235,7 @@ export default function AffiliateOnboardingPage() {
 
       const payload = {
           full_name: formData.full_name,
+          avatar_url: formData.avatar_url,
           phone: formData.phone,
           country: formData.country,
           promotion_platform: formData.promotion_platform,
@@ -311,6 +353,16 @@ export default function AffiliateOnboardingPage() {
                       </button>
                     ))}
                   </div>
+                ) : step.type === "image" ? (
+                  <div className="flex justify-center">
+                    <ImageUploadWithCrop 
+                        onImageCropped={handleImageCropped} 
+                        initialImage={formData.avatar_url}
+                        aspectRatio={1} // Square crop for avatars
+                        circularCrop={true}
+                        className="w-full max-w-[300px]"
+                    />
+                  </div>
                 ) : (
                   <input
                     autoFocus
@@ -336,7 +388,7 @@ export default function AffiliateOnboardingPage() {
 
                 <Button
                   onClick={handleNext}
-                  disabled={isSubmitting || (step.required && !formData[step.field])}
+                  disabled={isSubmitting || isUploading || (step.required && !formData[step.field])}
                    className={cn(
                     "text-lg h-14 px-8 rounded-full font-semibold transition-all hover:scale-105",
                     !step.required && !formData[step.field] && currentStep !== STEPS.length - 1

@@ -7,16 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Check } from "lucide-react";
+import { ImageUploadWithCrop } from "@/components/ui/image-upload-crop";
 
 export default function AffiliateSettingsPage() {
   const { user, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   const [formData, setFormData] = useState({
     // Account & Identity
     full_name: "",
+    avatar_url: "",
     phone: "",
     country: "",
     // Promotion Channel
@@ -47,6 +50,7 @@ export default function AffiliateSettingsPage() {
         if (data) {
           setFormData({
             full_name: data.full_name || "",
+            avatar_url: data.avatar_url || "",
             phone: data.phone || "",
             country: data.country || "",
             promotion_platform: data.promotion_platform || "Social Media",
@@ -71,6 +75,36 @@ export default function AffiliateSettingsPage() {
     }
   }, [user, loading]);
 
+  const handleImageCropped = async (blob: Blob) => {
+    if (!user) return;
+    setIsUploading(true);
+    
+    try {
+      const fileExt = "jpg";
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars') 
+        .upload(filePath, blob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      if (data) {
+        setFormData(prev => ({ ...prev, avatar_url: data.publicUrl }));
+      }
+    } catch (error: any) {
+        console.error("Error uploading avatar:", error);
+        alert("Error uploading avatar: " + error.message);
+    } finally {
+        setIsUploading(false);
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +118,7 @@ export default function AffiliateSettingsPage() {
         .from("partners")
         .update({
           full_name: formData.full_name,
+          avatar_url: formData.avatar_url,
           phone: formData.phone,
           country: formData.country,
           promotion_platform: formData.promotion_platform,
@@ -145,6 +180,19 @@ export default function AffiliateSettingsPage() {
             <div className="space-y-4">
               <h3 className="text-3xl font-bold text-[#c27aff] border-b border-zinc-800 pb-4">Account & Identity</h3>
               <div className="flex flex-col gap-8">
+                
+                {/* Avatar Upload */}
+                <div className="flex flex-col items-center sm:items-start gap-3">
+                    <label className="text-lg font-semibold text-white">Profile Picture</label>
+                    <ImageUploadWithCrop 
+                        onImageCropped={handleImageCropped} 
+                        initialImage={formData.avatar_url}
+                        aspectRatio={1}
+                        circularCrop={true}
+                        className="w-32 h-32"
+                    />
+                </div>
+
                 <div className="space-y-3">
                     <label className="text-lg font-semibold text-white">Full Name / Company Name</label>
                     <Input required name="full_name" value={formData.full_name} onChange={handleChange} className="h-16 text-2xl md:text-2xl bg-zinc-950 border border-zinc-700 rounded-lg text-white px-5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
@@ -239,7 +287,7 @@ export default function AffiliateSettingsPage() {
             <div className="flex items-center gap-4">
                 <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isUploading}
                 className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white min-w-[200px] h-16 text-xl font-semibold mt-8"
                 >
                 {isSubmitting ? (
