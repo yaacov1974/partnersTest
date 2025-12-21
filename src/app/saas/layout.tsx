@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/Footer";
 
 export default function SaaSLayout({
   children,
@@ -112,8 +113,11 @@ export default function SaaSLayout({
         </div>
       )}
 
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-black">
-        {children}
+      <main className="flex-1 overflow-y-auto bg-black">
+        <div className="p-4 md:p-8 min-h-[calc(100vh-4rem)]">
+          {children}
+        </div>
+        <Footer />
       </main>
     </div>
   );
