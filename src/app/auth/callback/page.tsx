@@ -38,6 +38,13 @@ function AuthCallbackContent() {
         // Prioritize metadata role over URL
         const targetType = metadataRole || urlType || 'saas';
         console.log("Detected targetType:", targetType, "(from metadata:", metadataRole, ", from URL:", urlType, ")");
+
+        // CHECK FOR UNIFIED FLOW
+        if (next.includes('role-selection')) {
+            console.log("Unified flow detected - skipping auto-profile creation");
+            window.location.href = next;
+            return;
+        }
         
         const loginPage = `/${targetType}/login`;
         
