@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Added useRouter back
+import { useEffect } from "react";
 
 export function Navbar() {
   const { user, session, loading, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await signOut();
@@ -16,6 +18,13 @@ export function Navbar() {
 
   // Get user role from session metadata. IF undefined, it means they haven't selected a role yet.
   const userRole = session?.user?.user_metadata?.role;
+
+  // AUTO-REDIRECT: If user is logged in, has NO role, and is on the homepage, send them to setup.
+  useEffect(() => {
+    if (!loading && user && !userRole && pathname === "/") {
+      router.push("/onboarding/role-selection");
+    }
+  }, [loading, user, userRole, pathname, router]);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/50 backdrop-blur-xl supports-[backdrop-filter]:bg-black/20">
