@@ -2,6 +2,7 @@
 
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -92,7 +93,9 @@ export default function AffiliateLayout({
           <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)} className="text-zinc-400 hover:text-white">
              <Menu className="h-6 w-6" />
           </Button>
-          <span className="ml-4 text-xl font-bold tracking-tight text-white">Partnerz.ai</span>
+          <Link href="/" className="ml-4">
+            <span className="text-xl font-bold tracking-tight text-white">Partnerz.ai</span>
+          </Link>
       </div>
 
       {/* Mobile Sidebar Overlay */}
