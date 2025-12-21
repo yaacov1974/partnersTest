@@ -4,7 +4,7 @@ returns trigger as $$
 begin
   -- Only proceed if role is present in metadata (e.g. from Email Signup)
   -- This prevents errors for OAuth signups where role might not be known yet
-  if (new.raw_user_meta_data->>'role' is not null) then
+  if (new.raw_user_meta_data->>'role' is not null and (new.raw_user_meta_data->>'role' = 'saas' or new.raw_user_meta_data->>'role' = 'affiliate')) then
     
     -- Insert into profiles
     insert into public.profiles (id, email, role, marketing_consent)
