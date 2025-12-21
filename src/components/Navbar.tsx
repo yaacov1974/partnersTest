@@ -14,8 +14,8 @@ export function Navbar() {
     window.location.href = "/";
   };
 
-  // Get user role from session metadata
-  const userRole = session?.user?.user_metadata?.role || "saas";
+  // Get user role from session metadata. IF undefined, it means they haven't selected a role yet.
+  const userRole = session?.user?.user_metadata?.role;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/50 backdrop-blur-xl supports-[backdrop-filter]:bg-black/20">
@@ -45,7 +45,9 @@ export function Navbar() {
           {!loading && user ? (
             <>
               <Button asChild className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
-                <Link href={`/${userRole}/dashboard`}>Dashboard</Link>
+                <Link href={userRole ? `/${userRole}/dashboard` : "/onboarding/role-selection"}>
+                  {userRole ? "Dashboard" : "Complete Setup"}
+                </Link>
               </Button>
               <Button 
                 variant="outline" 
