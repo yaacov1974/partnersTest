@@ -165,18 +165,20 @@ export default function AffiliateMarketplacePage() {
               <h3 className="text-2xl font-bold text-indigo-400">My Partner Programs</h3>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {myPrograms.map((program) => (
-                  <Card key={program.id} className="border-indigo-500/20 bg-indigo-500/5 backdrop-blur">
+                  <Card key={program.id} className="border-indigo-500/20 bg-indigo-500/5 backdrop-blur overflow-hidden">
+                    {/* Logo Banner */}
+                    <div className="h-40 w-full bg-zinc-900/50 p-6 flex items-center justify-center border-b border-indigo-500/10 relative group-hover:bg-zinc-900/70 transition-colors">
+                       {/* eslint-disable-next-line @next/next/no-img-element */}
+                       {program.logo_url && <img src={program.logo_url} alt={program.name} className="h-full w-full object-contain" />}
+                    </div>
+
                     <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="h-20 w-20 rounded-lg bg-zinc-800/50 p-2 overflow-hidden flex items-center justify-center border border-white/5">
-                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                           {program.logo_url && <img src={program.logo_url} alt={program.name} className="h-full w-full object-contain" />}
-                        </div>
-                        <span className="rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-medium text-green-400 border border-green-500/20 flex items-center gap-1">
+                      <div className="flex items-center justify-between mb-2">
+                         <span className="rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-medium text-green-400 border border-green-500/20 flex items-center gap-1">
                           <Check className="w-3 h-3" /> Connected
                         </span>
                       </div>
-                      <CardTitle className="mt-4 text-white">{program.name}</CardTitle>
+                      <CardTitle className="text-xl text-white">{program.name}</CardTitle>
                       <CardDescription className="line-clamp-2 min-h-[40px]">{program.short_description}</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -205,22 +207,24 @@ export default function AffiliateMarketplacePage() {
           ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {availablePrograms.map((program) => (
-                  <Card key={program.id} className="border-white/10 bg-white/5 backdrop-blur transition-all hover:bg-white/10 hover:border-indigo-500/50">
+                  <Card key={program.id} className="border-white/10 bg-white/5 backdrop-blur transition-all hover:bg-white/10 hover:border-indigo-500/50 overflow-hidden">
+                    {/* Logo Banner */}
+                    <div className="h-40 w-full bg-zinc-900/50 p-6 flex items-center justify-center border-b border-white/5 relative group-hover:bg-zinc-900/70 transition-colors">
+                       {/* eslint-disable-next-line @next/next/no-img-element */}
+                       {program.logo_url ? (
+                           <img src={program.logo_url} alt={program.name} className="h-full w-full object-contain" /> 
+                       ) : (
+                           <span className="text-4xl font-bold text-zinc-700">{program.name.substring(0,2)}</span>
+                       )}
+                    </div>
+
                     <CardHeader>
-                      <div className="flex items-center justify-between">
-                         <div className="h-20 w-20 rounded-lg bg-zinc-800/50 p-2 overflow-hidden flex items-center justify-center border border-white/5">
-                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                           {program.logo_url ? (
-                               <img src={program.logo_url} alt={program.name} className="h-full w-full object-contain" /> 
-                           ) : (
-                               <span className="text-xl font-bold text-zinc-600">{program.name.substring(0,2)}</span>
-                           )}
-                        </div>
+                      <div className="flex items-center justify-between mb-2">
                         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary border border-primary/20">
                           {program.commission_rate}% {program.commission_model}
                         </span>
                       </div>
-                      <CardTitle className="mt-4 text-white">{program.name}</CardTitle>
+                      <CardTitle className="text-xl text-white">{program.name}</CardTitle>
                       <CardDescription className="line-clamp-2 min-h-[40px]">{program.short_description}</CardDescription>
                     </CardHeader>
                     <CardContent>
