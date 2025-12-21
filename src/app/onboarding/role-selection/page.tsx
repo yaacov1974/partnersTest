@@ -79,7 +79,17 @@ export default function RoleSelectionPage() {
         if (partnerError) throw new Error(`Failed to create partner: ${partnerError.message}`);
       }
 
-      // 3. Redirect
+      // 3. Update Auth Metadata (so session reflects the role immediately)
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { role: role }
+      });
+
+      if (updateError) {
+        console.error("Failed to update auth metadata:", updateError);
+        // We don't block here because the DB write succeeded, but session might be stale until refresh.
+      }
+
+      // 4. Redirect
       window.location.href = `/${role}/onboarding`;
     } catch (err: any) {
       console.error("Role selection error:", err);
