@@ -14,6 +14,7 @@ interface ImageUploadWithCropProps {
   aspectRatio?: number;
   initialImage?: string;
   className?: string;
+  dropzoneClassName?: string;
   circularCrop?: boolean;
 }
 
