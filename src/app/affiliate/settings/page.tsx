@@ -189,7 +189,7 @@ export default function AffiliateSettingsPage() {
                         initialImage={formData.avatar_url}
                         aspectRatio={1}
                         circularCrop={true}
-                        dropzoneClassName="w-[500px] h-[500px]"
+                        dropzoneClassName="w-full max-w-[400px] aspect-square"
                     />
                 </div>
 
