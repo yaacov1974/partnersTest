@@ -160,6 +160,18 @@ function AuthCallbackContent() {
 
         // SUCCESS: Final Redirection
         console.log("Redirecting to:", next);
+
+        // EXTRA SAFEGUARD: If redirecting to root (default) but user has no profile/role yet (or just created one via role-selection flow?)
+        // Actually, if we just created a profile, we should redirect to next.
+        // But if next is '/' and we are in unified flow (or ambiguous), we should go to role selection.
+        if (next === '/' && !profile) {
+             // Although we might have auto-created a profile above? No, we skip auto-creation if unified.
+             // If we skipped auto-creation, profile is null.
+             console.log("Redirecting to root, but no profile found. Forcing Role Selection.");
+             window.location.href = '/onboarding/role-selection';
+             return;
+        }
+
         // Use window.location.href for a full refresh to ensure AuthContext/Layouts 
         // immediately recognize the new session and profile.
         window.location.href = next;
