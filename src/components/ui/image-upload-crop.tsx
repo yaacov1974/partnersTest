@@ -22,6 +22,7 @@ export function ImageUploadWithCrop({
   aspectRatio = 5 / 1,
   initialImage,
   className,
+  dropzoneClassName,
   circularCrop = false,
 }: ImageUploadWithCropProps) {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
